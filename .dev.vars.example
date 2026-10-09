@@ -1,0 +1,13 @@
+# Copy this file to .dev.vars for local development:
+#   cp .dev.vars.example .dev.vars
+#
+# When you use the "Deploy to Cloudflare" button, you will be asked
+# to enter this value in the deployment form.
+#
+# Generate YOUR OWN secret (exactly 32 hex characters, 0-9 and a-f):
+#   openssl rand -hex 16
+#   node -e "console.log(require('crypto').randomBytes(16).toString('hex'))"
+#
+# ⚠️ Replace the example value below with your own — never reuse it.
+
+PROXY_SECRET=0123456789abcdef0123456789abcdef

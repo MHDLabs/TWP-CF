@@ -1,0 +1,23 @@
+name = "twp-cf"
+main = "index.js"
+compatibility_date = "2025-01-01"
+
+# PROXY_SECRET is NOT set here on purpose.
+# Set it as a secret before deploying:
+#   wrangler secret put PROXY_SECRET
+# It must be 32 hex characters, or "dd" + 32 hex characters.
+#
+# For local development, copy .dev.vars.example to .dev.vars instead.
+
+[vars]
+SESSION_TTL_SECONDS = "300"
+MAX_STREAMS = "64"
+DIAGNOSTICS = "0"
+
+[[durable_objects.bindings]]
+name = "SESSIONS"
+class_name = "WebProxySession"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WebProxySession"]
