@@ -11,11 +11,3 @@
 # ⚠️ Replace the example value below with your own — never reuse it.
 
 PROXY_SECRET=0123456789abcdef0123456789abcdef
-
-# PANEL_ADMIN_TOKEN authenticates the panel's permanent-disable control.
-# Generate at least 32 random bytes (e.g. `openssl rand -hex 32`) and keep
-# it secret. It is independent from PROXY_SECRET and the Cloudflare API token.
-# If you forget it, replace it in the Cloudflare dashboard — the panel's
-# disabled state is restored automatically after rotation.
-
-PANEL_ADMIN_TOKEN=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef

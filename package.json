@@ -15,9 +15,6 @@
       "PROXY_SECRET": {
         "description": "🔑 Your private proxy key. Exactly **32 hex characters** (`0-9`, `a-f`). Generate your own with `openssl rand -hex 16` (or any trusted random-hex generator) and keep it secret. ⚠️ If a value is pre-filled, replace it."
       },
-      "PANEL_ADMIN_TOKEN": {
-        "description": "🔐 Admin token for the public panel's permanent-disable control. At least **32 random bytes** (e.g. `openssl rand -hex 32`). Keep it secret and independent from PROXY_SECRET."
-      },
       "SESSION_TTL_SECONDS": {
         "description": "Lifetime of a proxy session in seconds (30–600). The default `300` is fine for most users."
       },
@@ -32,8 +29,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "secret": "wrangler secret put PROXY_SECRET",
-    "secret:panel": "wrangler secret put PANEL_ADMIN_TOKEN"
+    "secret": "wrangler secret put PROXY_SECRET"
   },
   "devDependencies": {
     "wrangler": "^4.20.0"
