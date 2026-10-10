@@ -2,10 +2,12 @@ name = "twp-cf"
 main = "index.js"
 compatibility_date = "2025-01-01"
 
-# PROXY_SECRET is NOT set here on purpose.
-# Set it as a secret before deploying:
+# PROXY_SECRET and PANEL_ADMIN_TOKEN are NOT set here on purpose.
+# Set them as secrets before deploying:
 #   wrangler secret put PROXY_SECRET
-# It must be 32 hex characters, or "dd" + 32 hex characters.
+#   wrangler secret put PANEL_ADMIN_TOKEN
+# PROXY_SECRET must be 32 hex characters, or "dd" + 32 hex characters.
+# PANEL_ADMIN_TOKEN must be at least 32 random bytes, e.g. openssl rand -hex 32.
 #
 # For local development, copy .dev.vars.example to .dev.vars instead.
 
@@ -18,6 +20,14 @@ DIAGNOSTICS = "0"
 name = "SESSIONS"
 class_name = "WebProxySession"
 
+[[durable_objects.bindings]]
+name = "PANEL_SETTINGS"
+class_name = "PanelSettings"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["WebProxySession"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["PanelSettings"]
