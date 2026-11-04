@@ -13,11 +13,11 @@
 </p>
 
 <p>
-  The online Wizard is the easiest way to deploy your own Worker. You can also use Cloudflare's deploy button or Wrangler if you prefer a manual setup.
+  The online Wizard provides the simplest deployment path. Use Cloudflare's deploy button or Wrangler for a manual setup.
 </p>
 
 <blockquote>
-  ⚠️ Connectivity to Cloudflare and Telegram data centers depends on your network. Users in Iran may experience interruptions. TWP-CF does not promise permanent availability.
+  ⚠️ Connectivity to Cloudflare and Telegram data centers depends on your network. Users connecting from Iran sometimes face interruptions. TWP-CF does not promise permanent availability.
 </blockquote>
 
 <h2>⚙️ How it works</h2>
@@ -82,7 +82,7 @@ Telegram Data Center</code></pre>
 </ul>
 
 <p>
-  Live Probe checks whether the Worker host returns an HTTP response. It does not test the full MTProto connection to Telegram. Resetting the secret also invalidates the previous connection links for that Worker.
+  Live Probe checks whether the Worker host returns an HTTP response. It does not test the full MTProto connection to Telegram. Resetting the secret also invalidates the previous connection links for the Worker.
 </p>
 
 <h2>🛠️ Other deployment options</h2>
@@ -145,7 +145,7 @@ npm run dev</code></pre>
 
 <p>Open the link on a device with Telegram installed, then confirm the prompt to add the proxy.</p>
 
-<p>🔒 Keep your connection link and <code>PROXY_SECRET</code> private. Anyone who has them may use your proxy.</p>
+<p>🔒 Keep your connection link and <code>PROXY_SECRET</code> private. Anyone with this link and secret has the credentials needed to use your proxy.</p>
 
 <h2>🔧 Configuration</h2>
 
@@ -204,7 +204,7 @@ npm run dev</code></pre>
 
 <ul>
   <li>The Wizard UI saves the token in the current browser's <code>localStorage</code> so it is available for later actions.</li>
-  <li>Deployment history, connection links, and <code>PROXY_SECRET</code> values are also stored in that browser's local storage.</li>
+  <li>Deployment history, connection links, and <code>PROXY_SECRET</code> values are also stored in the browser's local storage.</li>
   <li>The current Wizard code does not send deployment history to a central user-history database. The token still passes through the Wizard backend during an operation.</li>
 </ul>
 
@@ -218,7 +218,7 @@ npm run dev</code></pre>
   <li>Client traffic passes through Cloudflare infrastructure.</li>
   <li>Keep <code>PROXY_SECRET</code> private and out of Git.</li>
   <li>The <code>/healthz</code> endpoint checks whether the Worker responds. It does not verify a full connection to a Telegram data center.</li>
-  <li>The Worker root path may return <code>404</code> when opened without valid Telegram or bridge parameters. This alone does not mean the Worker is down.</li>
+  <li>The Worker root path returns <code>404</code> for requests without valid Telegram or bridge parameters. This response alone does not mean the Worker is down.</li>
 </ul>
 
 <h2>🩺 Troubleshooting</h2>
