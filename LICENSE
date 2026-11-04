@@ -1,31 +1,114 @@
-TWP-CF Open Source License
+TWP-CF CUSTOM RECIPROCAL LICENSE
 Copyright (c) 2026 MHDLabs (Mahdi)
 
+This license applies to the TWP-CF software and its accompanying documentation
+(the "Software"), unless a file or component contains a separate license notice.
+
+1. DEFINITIONS
+
+"Original Project" means TWP-CF, maintained by MHDLabs, at:
+https://github.com/MHDLabs/TWP-CF
+
+"Modified Version" means the Software or a derivative work that has been changed,
+adapted, translated, extended, or combined with modifications to the Software.
+
+"Make Available" means to distribute, provide, publish, or otherwise give another
+person access to the Software, including by operating or offering it as a network
+service, hosted service, or remotely accessible application.
+
+"Corresponding Source" means the complete source code for the version being
+made available, including its modifications and the scripts and configuration
+needed to build, install, and run that version. It does not include credentials,
+private keys, personal data, or independent third-party software that is not
+part of the Software.
+
+2. PERMISSION GRANT
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, subject to the following conditions:
+of the Software, to use, reproduce, modify, prepare derivative works of,
+display, perform, distribute, make available, sublicense, and sell copies of
+the Software, subject to the conditions below.
 
-1. The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
+This permission applies to personal, commercial, and non-commercial use. It
+does not grant permission to use MHDLabs names, logos, or trademarks except
+to identify the Original Project and provide the attribution required below.
 
-2. Attribution Requirement for Modified Versions:
-   Any modified version of the Software must:
-   a) Clearly, prominently, and in a location easily visible to users
-      (such as the top of the README, the main documentation page, or the
-      about/credits section) state that it is based on the original project:
-      https://github.com/MHDLabs/TWP-CF
-   b) Not remove, obscure, or alter the original copyright notice.
-   c) Not claim or imply that it is the original, official, or unmodified version
-      of the project.
+3. CONDITIONS
 
-3. Open Source Requirement:
-   Any distribution of the Software or a modified version (including as a
-   deployed service) must make the complete corresponding source code freely
-   available to the recipients under the same license terms.
+3.1 Copyright and license notices
 
-4. If you violate any of the above conditions, your rights under this license
-   will terminate automatically.
+The copyright notice, this license, and all existing notices of authorship
+and attribution must be retained in all copies or substantial portions of
+the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND...
+3.2 Attribution for Modified Versions
+
+Every Modified Version that is distributed or Made Available must clearly
+and prominently state that it is based on the Original Project and include
+a direct link to:
+https://github.com/MHDLabs/TWP-CF
+
+The attribution must appear in a location reasonably visible to users, such as
+the main README, documentation, an about page, or an equivalent credits page.
+A reference hidden only in source comments or commit history is not sufficient.
+
+3.3 No misrepresentation
+
+A Modified Version must not be represented as the original, official, endorsed,
+or unmodified TWP-CF project. The attribution must not imply sponsorship,
+approval, or affiliation by MHDLabs.
+
+3.4 Reciprocal source-availability requirement
+
+If you distribute or Make Available the Software or a Modified Version to
+another person, including by providing it as a hosted or network service, you
+must make the Corresponding Source for the exact version being distributed or
+operated freely available to those recipients or users.
+
+The Corresponding Source must be provided under this same license, with
+reasonable access instructions. It must include your modifications and must
+not be withheld behind a payment requirement, account requirement, or
+additional license terms that prevent the recipient from exercising the rights
+granted by this license.
+
+This condition does not require publication of credentials, private keys,
+personal data, or unrelated infrastructure secrets. Those values must be
+excluded from the Corresponding Source.
+
+3.5 Same license for modified versions
+
+You may distribute or Make Available a Modified Version only under this license.
+You must not impose additional restrictions that prevent recipients from
+exercising the permissions granted by this license.
+
+4. TERMINATION
+
+Any rights granted under this license terminate automatically if you fail to
+comply with its conditions. If your rights terminate, you must stop using,
+distributing, and Making Available the Software until the violation is cured
+and the copyright holder has expressly reinstated your rights in writing.
+
+5. DISCLAIMER OF WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+6. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL
+MHDLABS OR ANY CONTRIBUTOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF DATA, PROFITS,
+REVENUE, OR GOODWILL, ARISING OUT OF OR RELATING TO THE SOFTWARE OR THIS
+LICENSE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+7. GOVERNING LAW
+
+This license does not designate a governing law or forum. Any rights and
+obligations are subject to applicable law.
+
+END OF TERMS AND CONDITIONS
