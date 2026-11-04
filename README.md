@@ -217,23 +217,15 @@ npm run dev</code></pre>
 
 <h2 dir="rtl" align="right">📁 فایل‌های اصلی پروژه</h2>
 
-<table dir="rtl" align="right">
-  <thead>
-    <tr>
-      <th align="right">مسیر</th>
-      <th align="right">کاربرد</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td><code dir="ltr">index.js</code></td><td>ورودی Worker و مدیریت درخواست‌ها</td></tr>
-    <tr><td><code dir="ltr">session.js</code></td><td>مدیریت نشست‌ها و استریم‌های Durable Object</td></tr>
-    <tr><td><code dir="ltr">mtproxy.js</code></td><td>دست‌دهی MTProto و رمزنگاری AES-CTR</td></tr>
-    <tr><td><code dir="ltr">protocol.js</code></td><td>تعریف و پردازش فریم‌های پروتکل داخلی</td></tr>
-    <tr><td><code dir="ltr">bridge.js</code></td><td>ارتباط Bridge با نشست WebSocket</td></tr>
-    <tr><td><code dir="ltr">wizard/</code></td><td>رابط وب و API راه‌انداز</td></tr>
-    <tr><td><code dir="ltr">wrangler.toml</code></td><td>تنظیمات Cloudflare Workers و Durable Objects</td></tr>
-  </tbody>
-</table>
+<ul dir="rtl" align="right">
+  <li><code dir="ltr">index.js</code>، ورودی Worker و مدیریت درخواست‌ها</li>
+  <li><code dir="ltr">session.js</code>، مدیریت نشست‌ها و استریم‌های Durable Object</li>
+  <li><code dir="ltr">mtproxy.js</code>، دست‌دهی MTProto و رمزنگاری AES-CTR</li>
+  <li><code dir="ltr">protocol.js</code>، تعریف و پردازش فریم‌های پروتکل داخلی</li>
+  <li><code dir="ltr">bridge.js</code>، ارتباط Bridge با نشست WebSocket</li>
+  <li><code dir="ltr">wizard/</code>، رابط وب و API راه‌انداز</li>
+  <li><code dir="ltr">wrangler.toml</code>، تنظیمات Cloudflare Workers و Durable Objects</li>
+</ul>
 
 <h2 dir="rtl" align="right">🔐 امنیت و حریم خصوصی</h2>
 
