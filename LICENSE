@@ -1,41 +1,31 @@
 TWP-CF Open Source License
-Copyright (c) 2026 MHDLabs (Mahdi). All rights reserved.
-
-1. GRANT OF RIGHTS
+Copyright (c) 2026 MHDLabs (Mahdi)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+copies of the Software, subject to the following conditions:
 
-2. ATTRIBUTION — REQUIRED FOR MODIFIED VERSIONS
+1. The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+2. Attribution Requirement for Modified Versions:
+   Any modified version of the Software must:
+   a) Clearly, prominently, and in a location easily visible to users
+      (such as the top of the README, the main documentation page, or the
+      about/credits section) state that it is based on the original project:
+      https://github.com/MHDLabs/TWP-CF
+   b) Not remove, obscure, or alter the original copyright notice.
+   c) Not claim or imply that it is the original, official, or unmodified version
+      of the project.
 
-Any modified version of the Software ("Modified Software") must:
+3. Open Source Requirement:
+   Any distribution of the Software or a modified version (including as a
+   deployed service) must make the complete corresponding source code freely
+   available to the recipients under the same license terms.
 
-  a) clearly and prominently reference the original repository in its
-     README, documentation, or about/credits section:
+4. If you violate any of the above conditions, your rights under this license
+   will terminate automatically.
 
-       https://github.com/MHDLabs/TWP-CF.git
-
-  b) not misrepresent its origin as being the original, unmodified project.
-
-3. OPEN-SOURCE REQUIREMENT
-
-Distributions of the Software or of a Modified Software must remain open
-source: complete corresponding source code must be freely available to
-recipients of the binaries or of the deployed service.
-
-4. NO WARRANTY
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND...
