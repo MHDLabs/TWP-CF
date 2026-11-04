@@ -1,17 +1,32 @@
-# TWP-CF — Telegram Web Proxy on Cloudflare Workers
+<h1>🛰️ TWP-CF | Telegram Proxy on Cloudflare</h1>
 
-[فارسی](README.md) · [GitHub repository](https://github.com/MHDLabs/TWP-CF) · [Online deployer](https://twp-wizard.mhdlab.workers.dev)
+<p>
+  <a href="README.md">فارسی</a>
+  |
+  <a href="https://github.com/MHDLabs/TWP-CF">GitHub</a>
+  |
+  <a href="https://twp-wizard.mhdlab.workers.dev">Web Wizard</a>
+</p>
 
-> ⚠️ **Network availability**
->
-> Connectivity to Cloudflare and Telegram data centers may be unstable in Iran due to network disruptions and restrictions. TWP-CF does not guarantee permanent availability or the ability to bypass every network restriction.
+<p>
+  TWP-CF relays Telegram MTProto traffic through Cloudflare Workers to Telegram data centers. You do not need a traditional VPS to run it.
+</p>
 
-TWP-CF is a Telegram MTProto relay running on **Cloudflare Workers**. It uses **Durable Objects** and a secure **WebSocket (WSS)** connection to forward traffic over TCP to Telegram data centers, without requiring a traditional VPS.
+<p>
+  The online Wizard is the easiest way to deploy your own Worker. You can also use Cloudflare's deploy button or Wrangler if you prefer a manual setup.
+</p>
 
-## Architecture
+<blockquote>
+  ⚠️ Connectivity to Cloudflare and Telegram data centers depends on your network. Users in Iran may experience interruptions. TWP-CF does not promise permanent availability.
+</blockquote>
 
-```text
-Telegram client
+<h2>⚙️ How it works</h2>
+
+<p>
+  The Worker receives the request, creates a session in a Durable Object, and connects the WebSocket relay to Telegram over TCP.
+</p>
+
+<pre><code>Telegram client
       │ HTTPS
       ▼
 Cloudflare Worker
@@ -20,184 +35,222 @@ Cloudflare Worker
 Durable Object (WebProxySession)
       │ TCP
       ▼
-Telegram Data Center
-```
+Telegram Data Center</code></pre>
 
-## Features
+<h2>✨ Features</h2>
 
-- Proxy core running on Cloudflare Workers
-- MTProto relay over WebSocket and TCP connections to Telegram data centers
-- Session management through Durable Objects with SQLite-backed storage
-- Flow control and bounded queues for concurrent streams
-- Telegram connection-link generation
-- Web Wizard for automated deployment and Worker management
-- Alternative deployment through Cloudflare's deploy button or Wrangler
+<ul>
+  <li>Runs the proxy core on Cloudflare Workers.</li>
+  <li>Relays MTProto traffic over WebSocket and TCP.</li>
+  <li>Manages sessions with Durable Objects and SQLite-backed storage.</li>
+  <li>Controls data flow and limits concurrent streams.</li>
+  <li>Generates a Telegram connection link for your Worker.</li>
+  <li>Deploys and manages Workers through the Web Wizard.</li>
+  <li>Supports Cloudflare's deploy button and manual Wrangler deployment.</li>
+</ul>
 
-## Quick start — automatic deployment
+<h2>🚀 Quick setup with the Web Wizard</h2>
 
-The recommended setup uses the project's Web Wizard. No terminal is required:
+<p>
+  This is the recommended setup for most users. You do not need a terminal.
+</p>
 
-**[Open TWP-CF Web Wizard](https://twp-wizard.mhdlab.workers.dev)**
+<p><a href="https://twp-wizard.mhdlab.workers.dev">Open TWP-CF Web Wizard ↗</a></p>
 
-1. Create an API Token using the [preconfigured Cloudflare token template](https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22user_details%22%2C%22type%22%3A%22read%22%7D%5D&accountId=%2A&zoneId=all&name=TWP-CF-Deployer). Review the permissions and account scope in Cloudflare before creating it.
-2. Paste the token into the Wizard. You may choose a Worker name; otherwise, the Wizard generates one.
-3. Start deployment and follow the live progress log.
-4. When deployment succeeds, copy the Telegram connection link from the result or deployment history and open it on a device with Telegram installed.
+<ol>
+  <li>
+    Create an API Token from the <a href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22user_details%22%2C%22type%22%3A%22read%22%7D%5D&amp;accountId=%2A&amp;zoneId=all&amp;name=TWP-CF-Deployer">Cloudflare token page</a>. Review the permissions and account scope before you create it.
+  </li>
+  <li>Paste the token into the Wizard. Choose a Worker name or keep the suggested name.</li>
+  <li>Start deployment and follow the live progress log.</li>
+  <li>When deployment completes, copy your Telegram connection link and open it on a device with Telegram installed.</li>
+</ol>
 
-The Wizard generates a random `PROXY_SECRET` and configures it in Cloudflare for you.
+<p>
+  The Wizard generates a random <code>PROXY_SECRET</code> and saves it as a Cloudflare secret for your Worker.
+</p>
 
-### Deployment management
+<h3>🧰 Manage your Workers</h3>
 
-The Wizard keeps deployment history in the current browser. Each Worker card provides actions to:
+<p>After deployment, the Wizard shows your deployment history in the same browser. Each Worker card gives you these actions:</p>
 
-- Copy the Telegram connection link.
-- Check HTTP reachability using **Live probe**.
-- Generate and set a new `PROXY_SECRET`.
-- Delete the Worker from your Cloudflare account.
+<ul>
+  <li>Copy the Telegram connection link.</li>
+  <li>Check HTTP reachability with Live Probe.</li>
+  <li>Generate and set a new <code>PROXY_SECRET</code>.</li>
+  <li>Delete the Worker from your Cloudflare account.</li>
+</ul>
 
-**Note:** The live probe checks whether the Worker host returns an HTTP response. It does not verify a complete MTProto connection or successful access to Telegram. Resetting the secret invalidates all previous connection links for that Worker.
+<p>
+  Live Probe checks whether the Worker host returns an HTTP response. It does not test the full MTProto connection to Telegram. Resetting the secret also invalidates the previous connection links for that Worker.
+</p>
 
-## Alternative deployment methods
+<h2>🛠️ Other deployment options</h2>
 
-### 1. Deploy with Cloudflare's official button
+<h3>1. Deploy with Cloudflare</h3>
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/MHDLabs/TWP-CF.git)
+<p>Use the button below and follow the Cloudflare setup steps.</p>
 
-1. Click the button above and sign in to Cloudflare.
-2. Configure `PROXY_SECRET` as a Worker secret.
-3. The value must be exactly **32 lowercase hexadecimal characters**. Generate one with:
+<p>
+  <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/MHDLabs/TWP-CF.git">
+    <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare">
+  </a>
+</p>
 
-   ```sh
-   openssl rand -hex 16
-   ```
+<p>
+  Set <code>PROXY_SECRET</code> as a Worker secret. It must contain exactly 32 lowercase hexadecimal characters. Generate one with:
+</p>
 
-4. Complete deployment and keep the resulting Worker URL.
+<pre><code>openssl rand -hex 16</code></pre>
 
-### 2. Manual deployment with Wrangler
+<h3>2. Deploy with Wrangler</h3>
 
-Requirements: Node.js 18 or later and a Cloudflare account.
+<p>You need Node.js 18 or later and a Cloudflare account.</p>
 
-```sh
-git clone https://github.com/MHDLabs/TWP-CF.git
+<pre><code>git clone https://github.com/MHDLabs/TWP-CF.git
 cd TWP-CF
 npm install
 
-# Generate a random 32-character secret
+# Generate a random secret
 openssl rand -hex 16
 
-# Authenticate with Cloudflare
+# Sign in to Cloudflare
 npx wrangler login
 
-# Store the secret in Cloudflare
+# Save the secret
 npx wrangler secret put PROXY_SECRET
 
 # Deploy
-npm run deploy
-```
+npm run deploy</code></pre>
 
-Paste the generated value when Wrangler prompts for it. Do not put the secret in public files or commit it to Git.
+<p>
+  Enter the value printed by <code>openssl</code> when Wrangler asks for the secret. Do not put it in a public file or commit it to Git.
+</p>
 
-### Local development
+<h3>🧪 Local development</h3>
 
-```sh
-cp .dev.vars.example .dev.vars
-```
+<p>Copy the example file and replace its sample <code>PROXY_SECRET</code> with a random value of your own.</p>
 
-Edit `.dev.vars` and replace the example `PROXY_SECRET` with your own random secret. Then run:
-
-```sh
+<pre><code>cp .dev.vars.example .dev.vars
 npm install
-npm run dev
-```
+npm run dev</code></pre>
 
-The `.dev.vars` file contains credentials and must not be committed.
+<p>The <code>.dev.vars</code> file contains a secret. Keep it out of Git.</p>
 
-## Connect Telegram
+<h2>📲 Connect Telegram</h2>
 
-After deployment, the connection URL follows this format:
+<p>After deployment, copy the personal connection link from the Wizard. It follows this format:</p>
 
-```text
-https://t.me/webproxy?server=<worker-host>&secret=<PROXY_SECRET>
-```
+<pre><code>https://t.me/webproxy?server=&lt;worker-host&gt;&amp;secret=&lt;PROXY_SECRET&gt;</code></pre>
 
-Use the personal link generated by the Wizard or construct it with your own Worker hostname and secret. Open it on a device with Telegram installed; Telegram should offer to add the MTProto proxy.
+<p>Open the link on a device with Telegram installed, then confirm the prompt to add the proxy.</p>
 
-**Keep your secret and personal connection link private.** Anyone who obtains them may use your proxy.
+<p>🔒 Keep your connection link and <code>PROXY_SECRET</code> private. Anyone who has them may use your proxy.</p>
 
-## Configuration
+<h2>🔧 Configuration</h2>
 
-The following variables are defined in `wrangler.toml`:
+<p>
+  The following settings are defined in <code>wrangler.toml</code>. Store <code>PROXY_SECRET</code> with <code>npx wrangler secret put PROXY_SECRET</code>.
+</p>
 
-| Variable | Default | Range / purpose |
-| --- | ---: | --- |
-| `PROXY_SECRET` | — | Required; 32 lowercase hex characters, or `dd` followed by 32 lowercase hex characters |
-| `SESSION_TTL_SECONDS` | `300` | Bootstrap session lifetime; 30–600 seconds |
-| `MAX_STREAMS` | `64` | Maximum concurrent streams per session; 1–128 |
-| `DIAGNOSTICS` | `0` | Set to `1` to enable verbose diagnostic logging |
+<table>
+  <thead>
+    <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PROXY_SECRET</code></td><td>None</td><td>Required. 32 lowercase hex characters, or <code>dd</code> followed by 32 lowercase hex characters.</td></tr>
+    <tr><td><code>SESSION_TTL_SECONDS</code></td><td><code>300</code></td><td>Bootstrap session lifetime, from 30 to 600 seconds.</td></tr>
+    <tr><td><code>MAX_STREAMS</code></td><td><code>64</code></td><td>Maximum concurrent streams per session, from 1 to 128.</td></tr>
+    <tr><td><code>DIAGNOSTICS</code></td><td><code>0</code></td><td>Set to <code>1</code> to enable diagnostic logs.</td></tr>
+  </tbody>
+</table>
 
-Set `PROXY_SECRET` with `npx wrangler secret put PROXY_SECRET`. Do not place it under `[vars]` or commit it to the repository.
+<p>Do not put <code>PROXY_SECRET</code> under <code>[vars]</code> or commit it to the repository.</p>
 
-### Supported secret formats
+<h3>Supported secret formats</h3>
 
-- **Plain:** exactly 32 lowercase hexadecimal characters.
-- **DD:** the `dd` prefix followed by 32 lowercase hexadecimal characters.
-- **FakeTLS:** not supported in Web Proxy mode.
+<ul>
+  <li><code>Plain</code>: exactly 32 lowercase hexadecimal characters.</li>
+  <li><code>DD</code>: the <code>dd</code> prefix followed by 32 lowercase hexadecimal characters.</li>
+  <li><code>FakeTLS</code>: not supported in Web Proxy mode.</li>
+</ul>
 
-The Wizard generates a Plain secret automatically.
+<p>The Wizard generates a Plain secret automatically.</p>
 
-## Project structure
+<h2>📁 Project files</h2>
 
-| Path | Purpose |
-| --- | --- |
-| `index.js` | Worker entry point, request routing, validation, and session creation |
-| `session.js` | Durable Object session lifecycle, streams, and data relay |
-| `mtproxy.js` | MTProto handshake, AES-CTR encryption, and Telegram data-center details |
-| `protocol.js` | Internal frame definitions, encoding, and parsing |
-| `bridge.js` | Bridge page connecting the Telegram client to the WebSocket session |
-| `wizard/` | Web deployer UI and API for deployment management |
-| `wrangler.toml` | Worker and Durable Object deployment configuration |
+<table>
+  <thead>
+    <tr><th>Path</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>index.js</code></td><td>Worker entry point and request handling.</td></tr>
+    <tr><td><code>session.js</code></td><td>Durable Object sessions and streams.</td></tr>
+    <tr><td><code>mtproxy.js</code></td><td>MTProto handshake and AES-CTR encryption.</td></tr>
+    <tr><td><code>protocol.js</code></td><td>Internal protocol frames and parsing.</td></tr>
+    <tr><td><code>bridge.js</code></td><td>Bridge between the client and WebSocket session.</td></tr>
+    <tr><td><code>wizard/</code></td><td>Web deployer and its API.</td></tr>
+    <tr><td><code>wrangler.toml</code></td><td>Cloudflare Workers and Durable Objects configuration.</td></tr>
+  </tbody>
+</table>
 
-## Security and privacy
+<h2>🔐 Security and privacy</h2>
 
-### Cloudflare API Token and the Web Wizard
+<h3>API Tokens in the Web Wizard</h3>
 
-The Wizard needs to call the Cloudflare API to create Workers, update secrets, and delete Workers. Therefore:
+<p>
+  The Wizard uses the Cloudflare API to create Workers, update secrets, and delete Workers. The token you enter is sent in a request to the Wizard backend, which uses it to perform the requested Cloudflare operation.
+</p>
 
-- The submitted API Token is sent in Wizard API requests. The Wizard backend uses it to make the corresponding Cloudflare API calls.
-- The Wizard UI saves the token in the current browser's `localStorage` for reuse.
-- Deployment history, including connection links and `PROXY_SECRET` values, is also stored in that browser's local storage.
-- The project's code does not send deployment history to a central user-history database. However, the token does pass through the Wizard backend while an operation is being performed.
+<ul>
+  <li>The Wizard UI saves the token in the current browser's <code>localStorage</code> so it is available for later actions.</li>
+  <li>Deployment history, connection links, and <code>PROXY_SECRET</code> values are also stored in that browser's local storage.</li>
+  <li>The current Wizard code does not send deployment history to a central user-history database. The token still passes through the Wizard backend during an operation.</li>
+</ul>
 
-Do not use the Wizard on a public or shared device. Prefer a dedicated API Token with limited permissions. Revoke it in Cloudflare when you no longer need the Wizard's management features. Once revoked, token-dependent management actions in the Wizard will no longer work.
+<p>
+  Do not use the Wizard on a public or shared computer. Create a dedicated API Token with limited permissions. Revoke it from Cloudflare when you no longer need the Wizard's management features. Token-based actions stop working after revocation.
+</p>
 
-### Proxy traffic
+<h3>Proxy traffic</h3>
 
-- Client traffic passes through Cloudflare infrastructure.
-- Keep `PROXY_SECRET` private and never commit it to Git.
-- The `/healthz` endpoint can be used to check whether the Worker responds; it does not guarantee connectivity to a Telegram data center.
-- The Worker root path may intentionally return `404` when opened without valid Telegram or bridge parameters. This response alone does not mean the Worker is down.
+<ul>
+  <li>Client traffic passes through Cloudflare infrastructure.</li>
+  <li>Keep <code>PROXY_SECRET</code> private and out of Git.</li>
+  <li>The <code>/healthz</code> endpoint checks whether the Worker responds. It does not verify a full connection to a Telegram data center.</li>
+  <li>The Worker root path may return <code>404</code> when opened without valid Telegram or bridge parameters. This alone does not mean the Worker is down.</li>
+</ul>
 
-## Troubleshooting
+<h2>🩺 Troubleshooting</h2>
 
-| Symptom | What to check |
-| --- | --- |
-| Token or permission error | Verify the token, its account scope, and the permissions selected in Cloudflare. |
-| Worker is unreachable | Check deployment status and whether the `workers.dev` subdomain is enabled. |
-| Live probe succeeds but Telegram cannot connect | The probe checks HTTP reachability only. Check the secret, connection link, and network restrictions as well. |
-| Unstable connections | Network disruption, Cloudflare restrictions, or reachability of Telegram data centers may be involved. |
+<table>
+  <thead>
+    <tr><th>Problem</th><th>What to check</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Token or permission error</td><td>Check the token, its permissions, and the selected Cloudflare account.</td></tr>
+    <tr><td>Worker does not respond</td><td>Check deployment status and whether the <code>workers.dev</code> subdomain is enabled.</td></tr>
+    <tr><td>Live Probe succeeds, but Telegram does not connect</td><td>Live Probe checks HTTP only. Check the secret, connection link, and network access.</td></tr>
+    <tr><td>Unstable connection</td><td>Check network restrictions, Cloudflare access, and connectivity to Telegram data centers.</td></tr>
+  </tbody>
+</table>
 
-## License
+<h2>📜 License</h2>
 
-TWP-CF is distributed under the **MHDLabs Custom Reciprocal License**. It is **not MIT** and is not a standard OSI-approved license.
+<p>
+  TWP-CF uses the MHDLabs Custom Reciprocal License. It is not the MIT License or an OSI-approved standard license.
+</p>
 
-Use, modification, and redistribution are permitted subject to the requirements for preserving copyright notices, providing clear attribution to the original repository, and making the corresponding source code available when distributing or offering a modified version as a service. See [LICENSE](LICENSE) for the complete terms.
+<p>
+  You must keep the copyright notice, credit the original repository, and make the source code available when you distribute or host a version of the project. Read <a href="LICENSE">LICENSE</a> for the full terms.
+</p>
 
-## Contributions and contact
+<h2>🤝 Contributions and contact</h2>
 
-- **Repository:** [github.com/MHDLabs/TWP-CF](https://github.com/MHDLabs/TWP-CF)
-- **Studio:** [MHDLabs](https://github.com/MHDLabs)
-- **Telegram:** [@MHDLabs](https://t.me/MHDLabs)
+<ul>
+  <li>Repository: <a href="https://github.com/MHDLabs/TWP-CF">MHDLabs/TWP-CF</a></li>
+  <li>Maintainer: <a href="https://github.com/MHDLabs">MHDLabs</a></li>
+  <li>Telegram: <a href="https://t.me/MHDLabs">@MHDLabs</a></li>
+</ul>
 
----
-
-Made with ❤️ by **MHDLabs**
+<p>Made with ❤️ by MHDLabs</p>
