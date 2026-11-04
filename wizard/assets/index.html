@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>TWP-CF Deployer</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --surface: #1a1d24;
+      --border: #2a2f3a;
+      --text: #e6e8ec;
+      --muted: #8b929e;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #22c55e;
+      --error: #ef4444;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    main {
+      width: 100%;
+      max-width: 420px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.75rem;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: var(--mono);
+      margin-bottom: 1rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    input::placeholder { color: #4b5260; }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover:not(:disabled) { background: var(--accent-hover); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .log {
+      margin-top: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+    .log.visible { display: block; }
+    .log .info { color: var(--muted); }
+    .log .error { color: var(--error); }
+    .result {
+      margin-top: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      display: none;
+    }
+    .result.visible { display: block; }
+    .result h2 {
+      font-size: 0.95rem;
+      color: var(--success);
+      margin-bottom: 0.75rem;
+    }
+    .row {
+      margin-bottom: 0.75rem;
+    }
+    .row:last-child { margin-bottom: 0; }
+    .row label { margin-bottom: 0.25rem; }
+    .value {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .value code {
+      flex: 1;
+      background: var(--bg);
+      padding: 0.5rem 0.65rem;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      word-break: break-all;
+    }
+    .copy {
+      flex-shrink: 0;
+      width: auto;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.8rem;
+      background: var(--border);
+    }
+    .copy:hover { background: #3a4050; }
+    .hint {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .hint a { color: var(--accent); text-decoration: none; }
+    .hint a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>TWP-CF Deployer</h1>
+    <p class="sub">دیپلوی خودکار پروکسی تلگرام روی Cloudflare Workers</p>
+
+    <form id="form">
+      <label for="token">Cloudflare API Token</label>
+      <input id="token" type="password" placeholder="پیست کنید..." required autocomplete="off" spellcheck="false">
+
+      <label for="name">نام Worker (اختیاری)</label>
+      <input id="name" type="text" placeholder="خالی = تصادفی" pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" autocomplete="off">
+
+      <button type="submit" id="btn">دیپلوی</button>
+    </form>
+
+    <div class="log" id="log"></div>
+
+    <div class="result" id="result">
+      <h2>دیپلوی موفق</h2>
+      <div class="row">
+        <label>آدرس پروکسی</label>
+        <div class="value">
+          <code id="out-url"></code>
+          <button type="button" class="copy" data-target="out-url">کپی</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>PROXY_SECRET</label>
+        <div class="value">
+          <code id="out-secret"></code>
+          <button type="button" class="copy" data-target="out-secret">کپی</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>لینک تلگرام</label>
+        <div class="value">
+          <code id="out-tg"></code>
+          <button type="button" class="copy" data-target="out-tg">کپی</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">
+      Token باید دسترسی <strong>Workers Scripts</strong> و <strong>Account</strong> داشته باشد.
+      <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener">ساخت Token</a>
+    </p>
+  </main>
+
+  <script>
+    const form = document.getElementById("form");
+    const btn = document.getElementById("btn");
+    const logEl = document.getElementById("log");
+    const resultEl = document.getElementById("result");
+
+    function log(type, msg) {
+      logEl.classList.add("visible");
+      const line = document.createElement("div");
+      line.className = type;
+      line.textContent = msg;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      logEl.innerHTML = "";
+      logEl.classList.remove("visible");
+      resultEl.classList.remove("visible");
+
+      try {
+        const res = await fetch("/api/deploy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: document.getElementById("token").value.trim(),
+            name: document.getElementById("name").value.trim(),
+          }),
+        });
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          const lines = buf.split("\n");
+          buf = lines.pop();
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            let msg;
+            try { msg = JSON.parse(line); } catch { continue; }
+            if (msg.type === "info") log("info", msg.message);
+            else if (msg.type === "error") log("error", msg.message);
+            else if (msg.type === "complete") {
+              document.getElementById("out-url").textContent = msg.url;
+              document.getElementById("out-secret").textContent = msg.secret;
+              document.getElementById("out-tg").textContent =
+                `https://t.me/webproxy?server=${encodeURIComponent(new URL(msg.url).hostname)}&secret=${encodeURIComponent(msg.secret)}`;
+              resultEl.classList.add("visible");
+              log("info", "تمام.");
+            }
+          }
+        }
+      } catch (err) {
+        log("error", err.message || String(err));
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.querySelectorAll(".copy").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const el = document.getElementById(btn.dataset.target);
+        navigator.clipboard.writeText(el.textContent).then(() => {
+          const old = btn.textContent;
+          btn.textContent = "کپی شد";
+          setTimeout(() => (btn.textContent = old), 900);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

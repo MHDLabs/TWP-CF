@@ -162,3 +162,13 @@ Custom open-source license — see [LICENSE](LICENSE). Free to use, modify, and 
 ---
 
 Made with ❤️ in **MHDLabs**
+
+## Auto Deployer (Wizard)
+
+One-click deploy without terminal:
+
+**https://twp-wizard.mhdlab.workers.dev**
+
+Paste your Cloudflare API Token → get a live proxy URL + `PROXY_SECRET` in seconds.
+
+Source code of the wizard lives in the `wizard/` folder.

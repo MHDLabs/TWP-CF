@@ -162,3 +162,12 @@ npm run dev
 ---
 
 ساخته شده با ❤️ در **MHDLabs**
+## دیپلوی خودکار (Wizard)
+
+دیپلوی یک‌کلیکی بدون ترمینال:
+
+**https://twp-wizard.mhdlab.workers.dev**
+
+API Token کلادفلر را وارد کنید → در چند ثانیه آدرس پروکسی + `PROXY_SECRET` را دریافت کنید.
+
+کد منبع Wizard در پوشه `wizard/` است.
