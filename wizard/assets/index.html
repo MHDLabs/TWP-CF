@@ -7,356 +7,586 @@
   <title>TWP-CF Deployer</title>
   <style>
     :root {
-      --bg: #0f1115;
-      --surface: #1a1d24;
-      --border: #2a2f3a;
-      --text: #e6e8ec;
-      --muted: #8b929e;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --success: #22c55e;
-      --error: #ef4444;
+      --bg0: #05060a;
+      --bg1: #0b0d14;
+      --glass: rgba(255,255,255,0.06);
+      --glass2: rgba(255,255,255,0.1);
+      --stroke: rgba(255,255,255,0.14);
+      --text: #f4f6fb;
+      --muted: #9aa3b5;
+      --accent: #5b8cff;
+      --accent2: #7c5cff;
+      --ok: #34d399;
+      --err: #fb7185;
+      --term: #22c55e;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem 3rem;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(91,140,255,0.25), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(124,92,255,0.22), transparent 50%),
+        radial-gradient(700px 400px at 50% 100%, rgba(52,211,153,0.08), transparent 45%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      background-attachment: fixed;
+      overflow-x: hidden;
     }
-    main { width: 100%; max-width: 440px; }
-    h1 { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
-    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      mix-blend-mode: soft-light;
+      z-index: 0;
+    }
+    .blob {
+      position: fixed;
+      width: 42vw;
+      height: 42vw;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      z-index: 0;
+      animation: float 12s ease-in-out infinite;
+    }
+    .blob.a { top: -10%; right: -8%; background: #5b8cff; }
+    .blob.b { bottom: -15%; left: -10%; background: #7c5cff; animation-delay: -4s; }
+    @keyframes float {
+      0%,100% { transform: translate3d(0,0,0) scale(1); }
+      50% { transform: translate3d(2%, 3%, 0) scale(1.08); }
+    }
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(520px, 100%);
+      margin: 0 auto;
+      padding: 2.5rem 1.1rem 3.5rem;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 1.6rem;
+      animation: rise 0.7s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px) scale(0.98); filter: blur(6px); }
+      to { opacity: 1; transform: none; filter: none; }
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+    }
+    .badge i {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 12px var(--ok);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(0.85); }
+    }
+    h1 {
+      font-size: clamp(1.6rem, 4vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 20%, #b7c7ff 55%, #d2b7ff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.35rem;
+    }
+    .sub { color: var(--muted); font-size: 0.92rem; }
+
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.12);
+      padding: 1.15rem;
+      margin-bottom: 1rem;
+      animation: rise 0.8s cubic-bezier(.2,.8,.2,1) both;
+      animation-delay: 0.08s;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+    .glass:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.16);
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    .field { margin-bottom: 0.9rem; position: relative; }
     input {
       width: 100%;
-      padding: 0.7rem 0.85rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.25);
       color: var(--text);
       font-size: 0.95rem;
       font-family: var(--mono);
-      margin-bottom: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     }
-    input:focus { outline: none; border-color: var(--accent); }
-    input::placeholder { color: #4b5260; }
-    button {
-      width: 100%;
-      padding: 0.75rem;
-      background: var(--accent);
-      color: #fff;
+    input:focus {
+      border-color: rgba(91,140,255,0.55);
+      box-shadow: 0 0 0 4px rgba(91,140,255,0.15);
+      background: rgba(0,0,0,0.35);
+    }
+    input::placeholder { color: #5c6578; }
+    .eye {
+      position: absolute;
+      left: 0.7rem;
+      top: 2.05rem;
+      background: transparent;
       border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 500;
+      color: var(--muted);
       cursor: pointer;
-      transition: background 0.15s;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.4rem;
     }
-    button:hover:not(:disabled) { background: var(--accent-hover); }
-    button:disabled { opacity: 0.55; cursor: not-allowed; }
-    .log {
-      margin-top: 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+
+    .btn {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: none;
+      border-radius: 14px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 30px rgba(91,140,255,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
+      transform: translateX(-120%);
+      transition: transform 0.6s ease;
+    }
+    .btn:hover:not(:disabled)::after { transform: translateX(120%); }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 36px rgba(91,140,255,0.4);
+    }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; filter: grayscale(0.2); }
+    .btn.ghost {
+      background: rgba(255,255,255,0.06);
+      box-shadow: none;
+      border: 1px solid var(--stroke);
+      color: var(--text);
+      font-weight: 500;
+      font-size: 0.82rem;
+      padding: 0.55rem 0.75rem;
+      width: auto;
+    }
+    .btn.danger {
+      background: linear-gradient(135deg, #fb7185, #e11d48);
+      box-shadow: 0 8px 22px rgba(225,29,72,0.25);
+    }
+    .btn.ok {
+      background: linear-gradient(135deg, #34d399, #059669);
+      box-shadow: 0 8px 22px rgba(5,150,105,0.25);
+    }
+    .btn.sm { width: auto; padding: 0.45rem 0.7rem; font-size: 0.78rem; border-radius: 10px; }
+
+    .term {
+      display: none;
+      margin-top: 0.2rem;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(34,197,94,0.2);
+      box-shadow: inset 0 0 40px rgba(34,197,94,0.05);
+      overflow: hidden;
+      animation: rise 0.5s ease both;
+    }
+    .term.visible { display: block; }
+    .term-bar {
+      display: flex;
+      gap: 6px;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+    .term-bar span {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #3a3f4b;
+    }
+    .term-bar span:nth-child(1) { background: #ff5f57; }
+    .term-bar span:nth-child(2) { background: #febc2e; }
+    .term-bar span:nth-child(3) { background: #28c840; }
+    .term-body {
       padding: 0.85rem 1rem;
       font-family: var(--mono);
-      font-size: 0.8rem;
-      max-height: 200px;
+      font-size: 0.78rem;
+      line-height: 1.65;
+      max-height: 210px;
       overflow-y: auto;
-      display: none;
+      color: var(--term);
+      text-shadow: 0 0 8px rgba(34,197,94,0.25);
     }
-    .log.visible { display: block; }
-    .log .info { color: var(--muted); }
-    .log .error { color: var(--error); }
-    .result, .history {
-      margin-top: 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    .result { display: none; }
-    .result.visible { display: block; }
-    .result h2, .history h2 {
-      font-size: 0.95rem;
-      margin-bottom: 0.75rem;
-    }
-    .result h2 { color: var(--success); }
-    .history h2 {
-      color: var(--muted);
+    .term-body .err { color: var(--err); text-shadow: 0 0 8px rgba(251,113,133,0.25); }
+    .term-body .line::before { content: "> "; opacity: 0.55; }
+
+    .history-title {
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    .history h2 button {
-      width: auto;
-      padding: 0.25rem 0.55rem;
-      font-size: 0.75rem;
-      background: transparent;
+      margin-bottom: 0.85rem;
       color: var(--muted);
-      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-weight: 600;
     }
-    .history h2 button:hover { color: var(--error); border-color: var(--error); }
-    .history:empty, .history.hidden { display: none; }
-    .row { margin-bottom: 0.75rem; }
-    .row:last-child { margin-bottom: 0; }
-    .row label { margin-bottom: 0.25rem; }
-    .value { display: flex; gap: 0.5rem; align-items: center; }
-    .value code {
-      flex: 1;
-      background: var(--bg);
-      padding: 0.5rem 0.65rem;
-      border-radius: 6px;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      word-break: break-all;
+    .card {
+      border-radius: 16px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.22);
+      padding: 0.9rem;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.25s, transform 0.25s;
+      animation: rise 0.55s ease both;
     }
-    .copy, .del {
-      flex-shrink: 0;
-      width: auto;
-      padding: 0.45rem 0.65rem;
-      font-size: 0.78rem;
-      background: var(--border);
-    }
-    .copy:hover, .del:hover { background: #3a4050; }
-    .del { color: var(--muted); }
-    .item {
-      border-top: 1px solid var(--border);
-      padding-top: 0.75rem;
-      margin-top: 0.75rem;
-    }
-    .item:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
-    .item .meta {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
+    .card:hover { border-color: rgba(91,140,255,0.35); transform: translateY(-1px); }
+    .card .top {
       display: flex;
       justify-content: space-between;
-      gap: 0.5rem;
+      gap: 0.6rem;
+      margin-bottom: 0.55rem;
+      align-items: baseline;
+    }
+    .card .name {
+      font-weight: 650;
+      font-size: 0.95rem;
+      letter-spacing: -0.01em;
+    }
+    .card .email { font-size: 0.75rem; color: var(--muted); direction: ltr; text-align: left; }
+    .card .time { font-size: 0.72rem; color: var(--muted); }
+    .link-row {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      margin-bottom: 0.7rem;
+    }
+    .link-row code {
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--stroke);
+      border-radius: 10px;
+      padding: 0.5rem 0.6rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      direction: ltr;
+      text-align: left;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .status {
+      font-size: 0.75rem;
+      margin-top: 0.55rem;
+      color: var(--muted);
+      min-height: 1.1em;
+    }
+    .status.ok { color: var(--ok); }
+    .status.bad { color: var(--err); }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 0.6rem 0 0.2rem;
     }
     .hint {
-      margin-top: 1.5rem;
-      font-size: 0.8rem;
+      text-align: center;
+      font-size: 0.78rem;
       color: var(--muted);
+      margin-top: 0.4rem;
+      animation: rise 0.9s ease both;
     }
-    .hint a { color: var(--accent); text-decoration: none; }
+    .hint a { color: #9db7ff; text-decoration: none; }
     .hint a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
+  <div class="blob a"></div>
+  <div class="blob b"></div>
   <main>
-    <h1>TWP-CF Deployer</h1>
-    <p class="sub">دیپلوی خودکار پروکسی تلگرام روی Cloudflare Workers</p>
-
-    <form id="form">
-      <label for="token">Cloudflare API Token</label>
-      <input id="token" type="password" placeholder="پیست کنید..." required autocomplete="off" spellcheck="false">
-
-      <label for="name">نام Worker (اختیاری)</label>
-      <input id="name" type="text" placeholder="خالی = تصادفی" pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" autocomplete="off">
-
-      <button type="submit" id="btn">دیپلوی</button>
-    </form>
-
-    <div class="log" id="log"></div>
-
-    <div class="result" id="result">
-      <h2>دیپلوی موفق</h2>
-      <div class="row">
-        <label>آدرس پروکسی</label>
-        <div class="value">
-          <code id="out-url"></code>
-          <button type="button" class="copy" data-copy="out-url">کپی</button>
-        </div>
-      </div>
-      <div class="row">
-        <label>PROXY_SECRET</label>
-        <div class="value">
-          <code id="out-secret"></code>
-          <button type="button" class="copy" data-copy="out-secret">کپی</button>
-        </div>
-      </div>
-      <div class="row">
-        <label>لینک تلگرام</label>
-        <div class="value">
-          <code id="out-tg"></code>
-          <button type="button" class="copy" data-copy="out-tg">کپی</button>
-        </div>
-      </div>
+    <div class="hero">
+      <div class="badge"><i></i> TWP-CF One-Click Deploy</div>
+      <h1>دیپلوی خودکار</h1>
+      <p class="sub">پروکسی تلگرام روی Cloudflare Workers</p>
     </div>
 
-    <div class="history" id="history"></div>
+    <section class="glass">
+      <form id="form">
+        <div class="field">
+          <label for="token">Cloudflare API Token</label>
+          <input id="token" type="password" placeholder="Token را وارد کنید" required autocomplete="off" spellcheck="false">
+          <button type="button" class="eye" id="toggle-token">نمایش</button>
+        </div>
+        <div class="field">
+          <label for="name">نام Worker (اختیاری)</label>
+          <input id="name" type="text" placeholder="خالی = تصادفی" pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" autocomplete="off">
+        </div>
+        <button class="btn" type="submit" id="btn">شروع دیپلوی</button>
+      </form>
+
+      <div class="term" id="term">
+        <div class="term-bar"><span></span><span></span><span></span></div>
+        <div class="term-body" id="log"></div>
+      </div>
+    </section>
+
+    <section class="glass" id="history-wrap">
+      <div class="history-title">
+        <span>دیپلوی‌های این مرورگر</span>
+        <button type="button" class="btn ghost sm" id="clear-all">پاک‌سازی</button>
+      </div>
+      <div id="history"></div>
+    </section>
 
     <p class="hint">
-      Token با دسترسی‌های لازم از قبل تنظیم شده:
-      <a href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22user_details%22%2C%22type%22%3A%22read%22%7D%5D&accountId=%2A&zoneId=all&name=TWP-CF-Deployer" target="_blank" rel="noopener">ساخت Token</a>
-      → Continue to summary → Create Token
+      <a href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22user_details%22%2C%22type%22%3A%22read%22%7D%5D&accountId=%2A&zoneId=all&name=TWP-CF-Deployer" target="_blank" rel="noopener">ساخت Token آماده‌شده</a>
+      · فقط در همین مرورگر ذخیره می‌شود
     </p>
   </main>
 
   <script>
-    const STORAGE_KEY = "twp-cf-deploys";
+    const KEY_DEPLOYS = "twp-cf-deploys-v2";
+    const KEY_TOKEN = "twp-cf-token";
+
     const form = document.getElementById("form");
     const btn = document.getElementById("btn");
+    const term = document.getElementById("term");
     const logEl = document.getElementById("log");
-    const resultEl = document.getElementById("result");
     const historyEl = document.getElementById("history");
+    const tokenInput = document.getElementById("token");
 
-    function loadHistory() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      } catch {
-        return [];
-      }
+    const savedToken = localStorage.getItem(KEY_TOKEN) || "";
+    if (savedToken) tokenInput.value = savedToken;
+
+    document.getElementById("toggle-token").onclick = () => {
+      const show = tokenInput.type === "password";
+      tokenInput.type = show ? "text" : "password";
+      document.getElementById("toggle-token").textContent = show ? "مخفی" : "نمایش";
+    };
+
+    function loadDeploys() {
+      try { return JSON.parse(localStorage.getItem(KEY_DEPLOYS) || "[]"); }
+      catch { return []; }
     }
-
-    function saveHistory(list) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 30)));
+    function saveDeploys(list) {
+      localStorage.setItem(KEY_DEPLOYS, JSON.stringify(list.slice(0, 40)));
     }
-
     function tgLink(url, secret) {
       try {
         const host = new URL(url).hostname;
         return `https://t.me/webproxy?server=${encodeURIComponent(host)}&secret=${encodeURIComponent(secret)}`;
-      } catch {
-        return "";
-      }
+      } catch { return ""; }
     }
-
     function fmtTime(ts) {
-      try {
-        return new Date(ts).toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" });
-      } catch {
-        return "";
-      }
+      try { return new Date(ts).toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" }); }
+      catch { return ""; }
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
     }
 
-    function renderHistory() {
-      const list = loadHistory();
-      if (!list.length) {
-        historyEl.classList.add("hidden");
-        historyEl.innerHTML = "";
-        return;
-      }
-      historyEl.classList.remove("hidden");
-      historyEl.innerHTML =
-        `<h2><span>دیپلوی‌های ذخیره‌شده</span><button type="button" id="clear-all">پاک کردن همه</button></h2>` +
-        list.map((d, i) => `
-          <div class="item" data-i="${i}">
-            <div class="meta"><span>${d.workerName || "—"}</span><span>${fmtTime(d.at)}</span></div>
-            <div class="row">
-              <label>آدرس</label>
-              <div class="value">
-                <code>${escapeHtml(d.url)}</code>
-                <button type="button" class="copy" data-text="${escapeAttr(d.url)}">کپی</button>
-              </div>
-            </div>
-            <div class="row">
-              <label>Secret</label>
-              <div class="value">
-                <code>${escapeHtml(d.secret)}</code>
-                <button type="button" class="copy" data-text="${escapeAttr(d.secret)}">کپی</button>
-              </div>
-            </div>
-            <div class="row">
-              <label>تلگرام</label>
-              <div class="value">
-                <code>${escapeHtml(d.tg)}</code>
-                <button type="button" class="copy" data-text="${escapeAttr(d.tg)}">کپی</button>
-                <button type="button" class="del" data-i="${i}">حذف</button>
-              </div>
-            </div>
-          </div>
-        `).join("");
-
-      document.getElementById("clear-all")?.addEventListener("click", () => {
-        if (confirm("همه دیپلوی‌های ذخیره‌شده پاک شوند؟")) {
-          localStorage.removeItem(STORAGE_KEY);
-          renderHistory();
-        }
-      });
-    }
-
-    function escapeHtml(s) {
-      return String(s || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-    function escapeAttr(s) {
-      return escapeHtml(s).replace(/'/g, "&#39;");
-    }
-
-    function addDeploy(entry) {
-      const list = loadHistory().filter((d) => d.url !== entry.url);
-      list.unshift(entry);
-      saveHistory(list);
-      renderHistory();
-    }
-
-    function log(type, msg) {
-      logEl.classList.add("visible");
-      const line = document.createElement("div");
-      line.className = type;
-      line.textContent = msg;
-      logEl.appendChild(line);
+    function logLine(msg, isErr) {
+      term.classList.add("visible");
+      const div = document.createElement("div");
+      div.className = "line" + (isErr ? " err" : "");
+      div.textContent = msg;
+      logEl.appendChild(div);
       logEl.scrollTop = logEl.scrollHeight;
     }
 
-    function copyText(text, button) {
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        const old = button.textContent;
-        button.textContent = "کپی شد";
-        setTimeout(() => (button.textContent = old), 900);
-      }).catch(() => {});
+    function token() {
+      return tokenInput.value.trim();
     }
 
-    document.addEventListener("click", (e) => {
-      const t = e.target;
-      if (t.matches(".copy[data-copy]")) {
-        const el = document.getElementById(t.dataset.copy);
-        copyText(el?.textContent || "", t);
-      } else if (t.matches(".copy[data-text]")) {
-        copyText(t.dataset.text, t);
-      } else if (t.matches(".del[data-i]")) {
-        const list = loadHistory();
-        list.splice(Number(t.dataset.i), 1);
-        saveHistory(list);
-        renderHistory();
+    function renderHistory() {
+      const list = loadDeploys();
+      if (!list.length) {
+        historyEl.innerHTML = `<div class="empty">هنوز دیپلویی ذخیره نشده</div>`;
+        return;
+      }
+      historyEl.innerHTML = list.map((d, i) => `
+        <div class="card" data-i="${i}">
+          <div class="top">
+            <div>
+              <div class="name">${esc(d.workerName || "worker")}</div>
+              <div class="email">${esc(d.email || "—")}</div>
+            </div>
+            <div class="time">${fmtTime(d.at)}</div>
+          </div>
+          <div class="link-row">
+            <code title="${esc(d.tg)}">${esc(d.tg)}</code>
+            <button type="button" class="btn ghost sm" data-act="copy" data-i="${i}">کپی لینک</button>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn ok sm" data-act="test" data-i="${i}">تست زنده</button>
+            <button type="button" class="btn ghost sm" data-act="reset" data-i="${i}">ریست Secret</button>
+            <button type="button" class="btn danger sm" data-act="delete" data-i="${i}">حذف Worker</button>
+          </div>
+          <div class="status" id="st-${i}"></div>
+        </div>
+      `).join("");
+    }
+
+    async function api(path, body) {
+      const res = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      return res.json();
+    }
+
+    function setStatus(i, text, cls) {
+      const el = document.getElementById("st-" + i);
+      if (!el) return;
+      el.className = "status " + (cls || "");
+      el.textContent = text;
+    }
+
+    historyEl.addEventListener("click", async (e) => {
+      const btnEl = e.target.closest("[data-act]");
+      if (!btnEl) return;
+      const i = Number(btnEl.dataset.i);
+      const list = loadDeploys();
+      const d = list[i];
+      if (!d) return;
+      const act = btnEl.dataset.act;
+      const t = token();
+
+      if (act === "copy") {
+        await navigator.clipboard.writeText(d.tg || "");
+        setStatus(i, "لینک کپی شد", "ok");
+        return;
+      }
+
+      if (act === "test") {
+        setStatus(i, "در حال تست...", "");
+        const r = await api("/api/probe", { url: d.url });
+        if (r.ok) setStatus(i, `آنلاین · HTTP ${r.status}`, "ok");
+        else setStatus(i, `آفلاین · ${r.error || "error"}`, "bad");
+        return;
+      }
+
+      if (!t) {
+        setStatus(i, "اول Token را وارد کنید", "bad");
+        tokenInput.focus();
+        return;
+      }
+
+      if (act === "reset") {
+        if (!confirm("Secret جدید ساخته شود؟ لینک قبلی از کار می‌افتد.")) return;
+        setStatus(i, "در حال ریست Secret...", "");
+        btnEl.disabled = true;
+        try {
+          const r = await api("/api/reset-secret", {
+            token: t,
+            accountId: d.accountId,
+            workerName: d.workerName,
+          });
+          if (!r.ok) throw new Error(r.error || "fail");
+          d.secret = r.secret;
+          d.tg = tgLink(d.url, r.secret);
+          list[i] = d;
+          saveDeploys(list);
+          renderHistory();
+          setStatus(i, "Secret عوض شد · لینک جدید آماده است", "ok");
+        } catch (err) {
+          setStatus(i, err.message || String(err), "bad");
+        } finally {
+          btnEl.disabled = false;
+        }
+        return;
+      }
+
+      if (act === "delete") {
+        if (!confirm(`Worker «${d.workerName}» برای همیشه حذف شود؟`)) return;
+        setStatus(i, "در حال حذف...", "");
+        btnEl.disabled = true;
+        try {
+          const r = await api("/api/delete", {
+            token: t,
+            accountId: d.accountId,
+            workerName: d.workerName,
+          });
+          if (!r.ok) throw new Error(r.error || "fail");
+          list.splice(i, 1);
+          saveDeploys(list);
+          renderHistory();
+        } catch (err) {
+          setStatus(i, err.message || String(err), "bad");
+          btnEl.disabled = false;
+        }
       }
     });
 
+    document.getElementById("clear-all").onclick = () => {
+      if (!loadDeploys().length) return;
+      if (confirm("همه دیپلوی‌های ذخیره‌شده از این مرورگر پاک شوند؟")) {
+        localStorage.removeItem(KEY_DEPLOYS);
+        renderHistory();
+      }
+    };
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const t = token();
+      if (!t) return;
+      localStorage.setItem(KEY_TOKEN, t);
       btn.disabled = true;
       logEl.innerHTML = "";
-      logEl.classList.remove("visible");
-      resultEl.classList.remove("visible");
+      term.classList.remove("visible");
 
       try {
         const res = await fetch("/api/deploy", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            token: document.getElementById("token").value.trim(),
+            token: t,
             name: document.getElementById("name").value.trim(),
           }),
         });
-
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buf = "";
-
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -365,29 +595,29 @@
           buf = lines.pop();
           for (const line of lines) {
             if (!line.trim()) continue;
-            let msg;
-            try { msg = JSON.parse(line); } catch { continue; }
-            if (msg.type === "info") log("info", msg.message);
-            else if (msg.type === "error") log("error", msg.message);
+            let msg; try { msg = JSON.parse(line); } catch { continue; }
+            if (msg.type === "info") logLine(msg.message, false);
+            else if (msg.type === "error") logLine(msg.message, true);
             else if (msg.type === "complete") {
+              logLine("دیپلوی کامل شد.", false);
               const tg = tgLink(msg.url, msg.secret);
-              document.getElementById("out-url").textContent = msg.url;
-              document.getElementById("out-secret").textContent = msg.secret;
-              document.getElementById("out-tg").textContent = tg;
-              resultEl.classList.add("visible");
-              log("info", "تمام.");
-              addDeploy({
+              const list = loadDeploys().filter((x) => x.workerName !== msg.workerName);
+              list.unshift({
                 url: msg.url,
                 secret: msg.secret,
-                workerName: msg.workerName || "",
+                workerName: msg.workerName,
+                email: msg.email || "",
+                accountId: msg.accountId || "",
                 tg,
                 at: Date.now(),
               });
+              saveDeploys(list);
+              renderHistory();
             }
           }
         }
       } catch (err) {
-        log("error", err.message || String(err));
+        logLine(err.message || String(err), true);
       } finally {
         btn.disabled = false;
       }

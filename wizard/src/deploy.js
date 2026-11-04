@@ -152,3 +152,56 @@ export async function deployWorker(token, accountId, workerName, secret, onProgr
   const url = `https://${workerName}.${subdomain}`;
   return { url, workerName, secret, subdomain };
 }
+
+export async function resetSecret(token, accountId, workerName) {
+  const secret = randomSecret();
+  const res = await fetch(
+    `${CF_API}/accounts/${accountId}/workers/scripts/${workerName}/secrets`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: "PROXY_SECRET", text: secret, type: "secret_text" }),
+    }
+  );
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(data.errors?.[0]?.message || "ریست Secret ناموفق بود");
+  }
+  return secret;
+}
+
+export async function deleteWorker(token, accountId, workerName) {
+  const res = await fetch(
+    `${CF_API}/accounts/${accountId}/workers/scripts/${workerName}`,
+    {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(data.errors?.[0]?.message || "حذف Worker ناموفق بود");
+  }
+  return true;
+}
+
+export async function probeWorker(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      signal: controller.signal,
+      redirect: "manual",
+    });
+    clearTimeout(timer);
+    // Any HTTP response means the worker is reachable (404 is expected for root)
+    return { ok: true, status: res.status };
+  } catch (err) {
+    clearTimeout(timer);
+    return { ok: false, error: err.name === "AbortError" ? "timeout" : (err.message || "unreachable") };
+  }
+}
