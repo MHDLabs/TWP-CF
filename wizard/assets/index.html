@@ -28,28 +28,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 3rem;
     }
-    main {
-      width: 100%;
-      max-width: 420px;
-    }
-    h1 {
-      font-size: 1.35rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-    .sub {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 1.75rem;
-    }
-    label {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-    }
+    main { width: 100%; max-width: 440px; }
+    h1 { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
     input {
       width: 100%;
       padding: 0.7rem 0.85rem;
@@ -61,10 +45,7 @@
       font-family: var(--mono);
       margin-bottom: 1rem;
     }
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    input:focus { outline: none; border-color: var(--accent); }
     input::placeholder { color: #4b5260; }
     button {
       width: 100%;
@@ -88,54 +69,79 @@
       padding: 0.85rem 1rem;
       font-family: var(--mono);
       font-size: 0.8rem;
-      max-height: 220px;
+      max-height: 200px;
       overflow-y: auto;
       display: none;
     }
     .log.visible { display: block; }
     .log .info { color: var(--muted); }
     .log .error { color: var(--error); }
-    .result {
+    .result, .history {
       margin-top: 1.25rem;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 1rem;
-      display: none;
     }
+    .result { display: none; }
     .result.visible { display: block; }
-    .result h2 {
+    .result h2, .history h2 {
       font-size: 0.95rem;
-      color: var(--success);
       margin-bottom: 0.75rem;
     }
-    .row {
-      margin-bottom: 0.75rem;
-    }
-    .row:last-child { margin-bottom: 0; }
-    .row label { margin-bottom: 0.25rem; }
-    .value {
+    .result h2 { color: var(--success); }
+    .history h2 {
+      color: var(--muted);
       display: flex;
-      gap: 0.5rem;
+      justify-content: space-between;
       align-items: center;
     }
+    .history h2 button {
+      width: auto;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.75rem;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .history h2 button:hover { color: var(--error); border-color: var(--error); }
+    .history:empty, .history.hidden { display: none; }
+    .row { margin-bottom: 0.75rem; }
+    .row:last-child { margin-bottom: 0; }
+    .row label { margin-bottom: 0.25rem; }
+    .value { display: flex; gap: 0.5rem; align-items: center; }
     .value code {
       flex: 1;
       background: var(--bg);
       padding: 0.5rem 0.65rem;
       border-radius: 6px;
       font-family: var(--mono);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       word-break: break-all;
     }
-    .copy {
+    .copy, .del {
       flex-shrink: 0;
       width: auto;
-      padding: 0.45rem 0.7rem;
-      font-size: 0.8rem;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.78rem;
       background: var(--border);
     }
-    .copy:hover { background: #3a4050; }
+    .copy:hover, .del:hover { background: #3a4050; }
+    .del { color: var(--muted); }
+    .item {
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .item:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .item .meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
     .hint {
       margin-top: 1.5rem;
       font-size: 0.8rem;
@@ -168,24 +174,26 @@
         <label>آدرس پروکسی</label>
         <div class="value">
           <code id="out-url"></code>
-          <button type="button" class="copy" data-target="out-url">کپی</button>
+          <button type="button" class="copy" data-copy="out-url">کپی</button>
         </div>
       </div>
       <div class="row">
         <label>PROXY_SECRET</label>
         <div class="value">
           <code id="out-secret"></code>
-          <button type="button" class="copy" data-target="out-secret">کپی</button>
+          <button type="button" class="copy" data-copy="out-secret">کپی</button>
         </div>
       </div>
       <div class="row">
         <label>لینک تلگرام</label>
         <div class="value">
           <code id="out-tg"></code>
-          <button type="button" class="copy" data-target="out-tg">کپی</button>
+          <button type="button" class="copy" data-copy="out-tg">کپی</button>
         </div>
       </div>
     </div>
+
+    <div class="history" id="history"></div>
 
     <p class="hint">
       Token با دسترسی‌های لازم از قبل تنظیم شده:
@@ -195,10 +203,105 @@
   </main>
 
   <script>
+    const STORAGE_KEY = "twp-cf-deploys";
     const form = document.getElementById("form");
     const btn = document.getElementById("btn");
     const logEl = document.getElementById("log");
     const resultEl = document.getElementById("result");
+    const historyEl = document.getElementById("history");
+
+    function loadHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHistory(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 30)));
+    }
+
+    function tgLink(url, secret) {
+      try {
+        const host = new URL(url).hostname;
+        return `https://t.me/webproxy?server=${encodeURIComponent(host)}&secret=${encodeURIComponent(secret)}`;
+      } catch {
+        return "";
+      }
+    }
+
+    function fmtTime(ts) {
+      try {
+        return new Date(ts).toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" });
+      } catch {
+        return "";
+      }
+    }
+
+    function renderHistory() {
+      const list = loadHistory();
+      if (!list.length) {
+        historyEl.classList.add("hidden");
+        historyEl.innerHTML = "";
+        return;
+      }
+      historyEl.classList.remove("hidden");
+      historyEl.innerHTML =
+        `<h2><span>دیپلوی‌های ذخیره‌شده</span><button type="button" id="clear-all">پاک کردن همه</button></h2>` +
+        list.map((d, i) => `
+          <div class="item" data-i="${i}">
+            <div class="meta"><span>${d.workerName || "—"}</span><span>${fmtTime(d.at)}</span></div>
+            <div class="row">
+              <label>آدرس</label>
+              <div class="value">
+                <code>${escapeHtml(d.url)}</code>
+                <button type="button" class="copy" data-text="${escapeAttr(d.url)}">کپی</button>
+              </div>
+            </div>
+            <div class="row">
+              <label>Secret</label>
+              <div class="value">
+                <code>${escapeHtml(d.secret)}</code>
+                <button type="button" class="copy" data-text="${escapeAttr(d.secret)}">کپی</button>
+              </div>
+            </div>
+            <div class="row">
+              <label>تلگرام</label>
+              <div class="value">
+                <code>${escapeHtml(d.tg)}</code>
+                <button type="button" class="copy" data-text="${escapeAttr(d.tg)}">کپی</button>
+                <button type="button" class="del" data-i="${i}">حذف</button>
+              </div>
+            </div>
+          </div>
+        `).join("");
+
+      document.getElementById("clear-all")?.addEventListener("click", () => {
+        if (confirm("همه دیپلوی‌های ذخیره‌شده پاک شوند؟")) {
+          localStorage.removeItem(STORAGE_KEY);
+          renderHistory();
+        }
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+    function escapeAttr(s) {
+      return escapeHtml(s).replace(/'/g, "&#39;");
+    }
+
+    function addDeploy(entry) {
+      const list = loadHistory().filter((d) => d.url !== entry.url);
+      list.unshift(entry);
+      saveHistory(list);
+      renderHistory();
+    }
 
     function log(type, msg) {
       logEl.classList.add("visible");
@@ -208,6 +311,30 @@
       logEl.appendChild(line);
       logEl.scrollTop = logEl.scrollHeight;
     }
+
+    function copyText(text, button) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const old = button.textContent;
+        button.textContent = "کپی شد";
+        setTimeout(() => (button.textContent = old), 900);
+      }).catch(() => {});
+    }
+
+    document.addEventListener("click", (e) => {
+      const t = e.target;
+      if (t.matches(".copy[data-copy]")) {
+        const el = document.getElementById(t.dataset.copy);
+        copyText(el?.textContent || "", t);
+      } else if (t.matches(".copy[data-text]")) {
+        copyText(t.dataset.text, t);
+      } else if (t.matches(".del[data-i]")) {
+        const list = loadHistory();
+        list.splice(Number(t.dataset.i), 1);
+        saveHistory(list);
+        renderHistory();
+      }
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -243,12 +370,19 @@
             if (msg.type === "info") log("info", msg.message);
             else if (msg.type === "error") log("error", msg.message);
             else if (msg.type === "complete") {
+              const tg = tgLink(msg.url, msg.secret);
               document.getElementById("out-url").textContent = msg.url;
               document.getElementById("out-secret").textContent = msg.secret;
-              document.getElementById("out-tg").textContent =
-                `https://t.me/webproxy?server=${encodeURIComponent(new URL(msg.url).hostname)}&secret=${encodeURIComponent(msg.secret)}`;
+              document.getElementById("out-tg").textContent = tg;
               resultEl.classList.add("visible");
               log("info", "تمام.");
+              addDeploy({
+                url: msg.url,
+                secret: msg.secret,
+                workerName: msg.workerName || "",
+                tg,
+                at: Date.now(),
+              });
             }
           }
         }
@@ -259,16 +393,7 @@
       }
     });
 
-    document.querySelectorAll(".copy").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const el = document.getElementById(btn.dataset.target);
-        navigator.clipboard.writeText(el.textContent).then(() => {
-          const old = btn.textContent;
-          btn.textContent = "کپی شد";
-          setTimeout(() => (btn.textContent = old), 900);
-        });
-      });
-    });
+    renderHistory();
   </script>
 </body>
 </html>
