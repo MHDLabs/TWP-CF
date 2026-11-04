@@ -78,9 +78,10 @@ export async function deployWorker(token, accountId, workerName, secret, onProgr
       { type: "plain_text", name: "MAX_STREAMS", text: "64" },
       { type: "plain_text", name: "DIAGNOSTICS", text: "0" },
     ],
-    migrations: [
-      { tag: "v1", new_sqlite_classes: ["WebProxySession"] },
-    ],
+    migrations: {
+      new_tag: "v1",
+      new_sqlite_classes: ["WebProxySession"],
+    },
   };
 
   const form = new FormData();
