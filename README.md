@@ -1,99 +1,203 @@
 # TWP-CF — پروکسی وب تلگرام روی Cloudflare Workers
 
-> ⚠️ **هشدار — اختلالات اینترنت ایران**  
-> به‌خاطر اختلالات اینترنت ایران ممکن است این پروکسی ناپایدار باشد.
+[English documentation](README-En.md) · [مخزن GitHub](https://github.com/MHDLabs/TWP-CF) · [راه‌انداز آنلاین](https://twp-wizard.mhdlab.workers.dev)
 
-پروکسی خودکفا برای تلگرام که روی Cloudflare Workers + Durable Objects اجرا می‌شود و ترافیک MTProto را رله می‌کند.
+> ⚠️ **توجه درباره وضعیت اینترنت ایران**
+>
+> به‌دلیل اختلال‌ها و محدودیت‌های شبکه در ایران، دسترسی به Cloudflare یا دیتاسنترهای تلگرام ممکن است ناپایدار باشد. TWP-CF تضمینی برای دور زدن همه محدودیت‌ها یا دسترس‌پذیری دائمی ارائه نمی‌کند.
 
+TWP-CF یک رله‌ی MTProto برای تلگرام است که روی **Cloudflare Workers** اجرا می‌شود. این پروژه با استفاده از **Durable Objects** و **WebSocket امن (WSS)** ترافیک را به‌صورت مستقیم از طریق TCP به دیتاسنترهای تلگرام منتقل می‌کند؛ بدون نیاز به VPS سنتی.
+
+## معماری
+
+```text
+Telegram client
+      │ HTTPS
+      ▼
+Cloudflare Worker
+      │ WebSocket
+      ▼
+Durable Object (WebProxySession)
+      │ TCP
+      ▼
+Telegram Data Center
 ```
-کلاینت تلگرام → HTTPS → Worker → WebSocket → Durable Object → TCP → DC تلگرام
-```
 
----
+## امکانات
 
-## روش‌های نصب
+- اجرای هسته‌ی پروکسی روی Cloudflare Workers
+- رله‌ی MTProto از طریق WebSocket و اتصال TCP به دیتاسنترهای تلگرام
+- مدیریت نشست‌ها با Durable Objects و فضای ذخیره‌سازی SQLite
+- کنترل جریان داده و محدودیت صف‌ها و استریم‌های هم‌زمان
+- ساخت لینک اتصال مستقیم تلگرام
+- راه‌اندازی خودکار و مدیریت Worker از طریق Web Wizard
+- امکان نصب با دکمه‌ی رسمی Cloudflare یا به‌صورت دستی با Wrangler
 
-### ۱) دیپلوی خودکار (پیشنهادی)
+## شروع سریع — راه‌اندازی خودکار
 
-بدون ترمینال، با یک کلیک:
+روش پیشنهادی، استفاده از Wizard رسمی پروژه است و به ترمینال نیاز ندارد:
 
-**https://twp-wizard.mhdlab.workers.dev**
+**[باز کردن TWP-CF Web Wizard](https://twp-wizard.mhdlab.workers.dev)**
 
-1. روی [ساخت Token آماده‌شده](https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22user_details%22%2C%22type%22%3A%22read%22%7D%5D&accountId=%2A&zoneId=all&name=TWP-CF-Deployer) کلیک کنید  
-2. Continue to summary → Create Token  
-3. Token را در Wizard وارد کنید و دیپلوی کنید  
+1. از [لینک ساخت API Token با تنظیمات پیشنهادی](https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22user_details%22%2C%22type%22%3A%22read%22%7D%5D&accountId=%2A&zoneId=all&name=TWP-CF-Deployer) یک Token بسازید. پیش از ساخت، سطح دسترسی و محدوده‌ی آن را در Cloudflare بررسی کنید.
+2. Token را در Wizard وارد کنید. در صورت تمایل می‌توانید نام دلخواهی برای Worker تعیین کنید؛ در غیر این صورت نامی تصادفی ساخته می‌شود.
+3. فرایند دیپلوی را اجرا کنید و پیام‌های پیشرفت را در لاگ زنده ببینید.
+4. پس از موفقیت، لینک اتصال تلگرام را از نتیجه یا تاریخچه کپی و در دستگاهی که تلگرام روی آن نصب است باز کنید.
 
-بعد از موفقیت، فقط **لینک اتصال تلگرام** را کپی کنید. Token و تاریخچه دیپلوی‌ها فقط در مرورگر شما ذخیره می‌شوند.
+Wizard برای Worker مقدار تصادفی `PROXY_SECRET` تولید و آن را در Cloudflare ثبت می‌کند. لازم نیست Secret را دستی بسازید.
 
----
+### مدیریت دیپلوی‌ها
 
-### ۲) دیپلوی با لینک GitHub (دکمه رسمی Cloudflare)
+Wizard تاریخچه‌ی دیپلوی‌ها را در همان مرورگر نگه می‌دارد. از کارت هر Worker می‌توانید:
+
+- لینک اتصال تلگرام را کپی کنید.
+- دسترسی HTTP به Worker را با گزینه‌ی «تست زنده» بررسی کنید.
+- برای Worker یک `PROXY_SECRET` جدید بسازید.
+- Worker را از حساب Cloudflare حذف کنید.
+
+**توجه:** تست زنده فقط پاسخ‌گویی HTTP میزبان را بررسی می‌کند؛ موفقیت آن به معنی تأیید اتصال واقعی تلگرام یا عملکرد کامل MTProto نیست. همچنین با تغییر Secret، لینک‌های اتصال قبلی آن Worker دیگر معتبر نخواهند بود.
+
+## روش‌های دیگر نصب
+
+### ۱. دیپلوی با دکمه‌ی رسمی Cloudflare
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/MHDLabs/TWP-CF.git)
 
-1. روی دکمه بالا کلیک کنید  
-2. وارد Cloudflare شوید  
-3. برای `PROXY_SECRET` دقیقاً **۳۲ کاراکتر hex** بگذارید (`openssl rand -hex 16`)  
-4. منتظر اتمام دیپلوی بمانید  
+1. روی دکمه‌ی بالا کلیک و وارد حساب Cloudflare شوید.
+2. در تنظیمات Worker، مقدار `PROXY_SECRET` را به‌صورت Secret ثبت کنید.
+3. مقدار باید دقیقاً **۳۲ کاراکتر hex کوچک** باشد؛ برای نمونه می‌توانید با دستور زیر یک مقدار تصادفی بسازید:
 
-آدرس نهایی:
+   ```sh
+   openssl rand -hex 16
+   ```
 
-```
-https://<worker-name>.<subdomain>.workers.dev
-```
+4. دیپلوی را کامل کنید و آدرس Worker را نگه دارید.
 
-لینک تلگرام:
+### ۲. نصب دستی با Wrangler
 
-```
-https://t.me/webproxy?server=<hostname>&secret=<PROXY_SECRET>
-```
-
----
-
-### ۳) دیپلوی دستی با ترمینال (توسعه‌دهنده)
-
-پیش‌نیاز: Node.js 18+ و اکانت Cloudflare.
+پیش‌نیازها: Node.js نسخه‌ی 18 یا بالاتر و یک حساب Cloudflare.
 
 ```sh
 git clone https://github.com/MHDLabs/TWP-CF.git
 cd TWP-CF
 npm install
-openssl rand -hex 16          # خروجی را برای PROXY_SECRET نگه دارید
+
+# ساخت Secret تصادفی ۳۲ کاراکتری
+openssl rand -hex 16
+
+# ورود به Cloudflare
 npx wrangler login
+
+# ثبت Secret در Cloudflare
 npx wrangler secret put PROXY_SECRET
+
+# دیپلوی
 npm run deploy
 ```
 
-متغیرهای اختیاری در `wrangler.toml`:
+هنگام اجرای `wrangler secret put`، مقدار تولیدشده را وارد کنید. Secret را داخل فایل‌های عمومی یا Git commit نکنید.
 
-| متغیر | پیش‌فرض | توضیح |
-|--------|---------|--------|
-| `SESSION_TTL_SECONDS` | `300` | عمر session (۳۰–۶۰۰) |
-| `MAX_STREAMS` | `64` | حداکثر استریم همزمان (۱–۱۲۸) |
-| `DIAGNOSTICS` | `0` | `1` برای لاگ مفصل |
-
-توسعه محلی:
+### توسعه‌ی محلی
 
 ```sh
 cp .dev.vars.example .dev.vars
+```
+
+فایل `.dev.vars` را باز کنید و مقدار نمونه‌ی `PROXY_SECRET` را با یک Secret تصادفی و شخصی جایگزین کنید؛ سپس:
+
+```sh
+npm install
 npm run dev
 ```
 
----
+فایل `.dev.vars` محرمانه است و نباید در Git ثبت شود.
 
-## امنیت
+## اتصال به تلگرام
 
-- `PROXY_SECRET` را با کسی به اشتراک نگذارید  
-- Secret را در Git commit نکنید  
-- ترافیک از Cloudflare عبور می‌کند  
+پس از دیپلوی، لینک اتصال به این شکل است:
+
+```text
+https://t.me/webproxy?server=<worker-host>&secret=<PROXY_SECRET>
+```
+
+لینک اختصاصی خودتان را از Wizard یا Cloudflare بسازید و در دستگاه دارای تلگرام باز کنید. تلگرام باید پیشنهاد افزودن MTProto Proxy را نمایش دهد.
+
+**Secret و لینک اختصاصی پروکسی را عمومی نکنید.** هر کسی که آن‌ها را داشته باشد می‌تواند از پروکسی شما استفاده کند.
+
+## تنظیمات
+
+مقادیر زیر در فایل `wrangler.toml` تعریف شده‌اند:
+
+| متغیر | پیش‌فرض | محدوده / کاربرد |
+| --- | ---: | --- |
+| `PROXY_SECRET` | — | الزامی؛ ۳۲ کاراکتر hex کوچک یا پیشوند `dd` به‌همراه ۳۲ کاراکتر hex |
+| `SESSION_TTL_SECONDS` | `300` | عمر Bootstrap Session؛ بین ۳۰ تا ۶۰۰ ثانیه |
+| `MAX_STREAMS` | `64` | حداکثر استریم هم‌زمان در هر نشست؛ بین ۱ تا ۱۲۸ |
+| `DIAGNOSTICS` | `0` | مقدار `1` لاگ تشخیصی مفصل را فعال می‌کند |
+
+برای ثبت `PROXY_SECRET` در محیط Cloudflare از دستور `npx wrangler secret put PROXY_SECRET` استفاده کنید؛ این مقدار نباید در بخش `[vars]` یا داخل مخزن قرار بگیرد.
+
+### قالب Secret پشتیبانی‌شده
+
+- **Plain:** دقیقاً ۳۲ رقم hex کوچک.
+- **DD:** پیشوند `dd` به‌همراه ۳۲ رقم hex کوچک.
+- **FakeTLS:** در حالت Web Proxy پشتیبانی نمی‌شود.
+
+Wizard به‌صورت خودکار Secret از نوع Plain تولید می‌کند.
+
+## ساختار اصلی پروژه
+
+| مسیر | توضیح |
+| --- | --- |
+| `index.js` | ورودی Worker، مسیریابی درخواست‌ها، اعتبارسنجی و ساخت نشست |
+| `session.js` | مدیریت نشست Durable Object، استریم‌ها و انتقال داده |
+| `mtproxy.js` | دست‌دهی MTProto، رمزنگاری AES-CTR و اطلاعات دیتاسنترهای تلگرام |
+| `protocol.js` | تعریف فریم‌ها، کدگذاری و تجزیه‌ی پروتکل داخلی |
+| `bridge.js` | صفحه‌ی Bridge برای ارتباط کلاینت تلگرام با نشست WebSocket |
+| `wizard/` | رابط وب و API راه‌انداز و مدیر دیپلوی‌ها |
+| `wrangler.toml` | تنظیمات دیپلوی Worker و Durable Object |
+
+## امنیت و حریم خصوصی
+
+### درباره‌ی Cloudflare API Token
+
+Wizard برای ایجاد، تغییر Secret و حذف Worker باید با API کلادفلر ارتباط برقرار کند. بنابراین:
+
+- Token واردشده به درخواست‌های API مربوط به Wizard ارسال می‌شود و Backend راه‌انداز از آن برای فراخوانی Cloudflare API استفاده می‌کند.
+- رابط Wizard، Token را برای استفاده‌ی مجدد در `localStorage` همان مرورگر ذخیره می‌کند.
+- تاریخچه‌ی دیپلوی‌ها، از جمله لینک اتصال و `PROXY_SECRET`، نیز در فضای ذخیره‌سازی محلی همان مرورگر نگهداری می‌شود.
+- این اطلاعات در کد پروژه به یک پایگاه داده‌ی مرکزی برای تاریخچه‌ی کاربران ارسال نمی‌شوند؛ بااین‌حال Token هنگام انجام عملیات از Backend راه‌انداز عبور می‌کند.
+
+از Wizard روی دستگاه یا مرورگر عمومی و مشترک استفاده نکنید. برای امنیت بیشتر، یک API Token اختصاصی با دسترسی محدود بسازید و پس از پایان نیاز به مدیریت از طریق Wizard، آن را از Cloudflare لغو کنید. با لغو Token، قابلیت‌های مدیریتی Wizard که به آن نیاز دارند دیگر کار نخواهند کرد.
+
+### درباره‌ی ترافیک پروکسی
+
+- ترافیک کلاینت از زیرساخت Cloudflare عبور می‌کند.
+- `PROXY_SECRET` را محرمانه نگه دارید و در Git commit نکنید.
+- برای بررسی وضعیت پاسخ‌گویی Worker می‌توانید مسیر `/healthz` را باز کنید؛ این بررسی به‌تنهایی سلامت اتصال تا دیتاسنتر تلگرام را تضمین نمی‌کند.
+- باز کردن مسیر ریشه‌ی Worker بدون پارامترهای معتبر ممکن است عمداً پاسخ `404` بدهد؛ این رفتار به‌تنهایی نشانه‌ی از کار افتادن Worker نیست.
+
+## عیب‌یابی
+
+| نشانه | توضیح |
+| --- | --- |
+| خطای Token یا Permission | اعتبار Token، محدوده‌ی حساب و دسترسی‌های انتخاب‌شده در Cloudflare را بررسی کنید. |
+| Worker در دسترس نیست | فعال بودن زیردامنه‌ی `workers.dev` و وضعیت دیپلوی را بررسی کنید. |
+| تست زنده موفق است اما تلگرام وصل نمی‌شود | تست زنده فقط دسترسی HTTP را می‌سنجد؛ Secret، لینک اتصال و محدودیت‌های شبکه را نیز بررسی کنید. |
+| اتصال ناپایدار است | اختلال شبکه، محدودیت‌های Cloudflare یا دسترسی به دیتاسنترهای تلگرام می‌تواند مؤثر باشد. |
 
 ## مجوز
 
-مجوز اوپن‌سورس سفارشی — فایل [LICENSE](LICENSE).  
-نسخه‌های تغییر‌یافته باید به مخزن اصلی ارجاع دهند: https://github.com/MHDLabs/TWP-CF
+TWP-CF تحت **مجوز سفارشی و متقابل MHDLabs** منتشر می‌شود. این مجوز MIT نیست و یک مجوز استانداردِ تأییدشده توسط OSI محسوب نمی‌شود.
 
-## نویسنده
+استفاده، تغییر و بازتوزیع با رعایت شروط حفظ اعلان حق نشر، انتساب روشن به مخزن اصلی و انتشار کد منبع نسخه‌های توزیع‌شده یا ارائه‌شده به‌صورت سرویس مجاز است. متن کامل و شروط دقیق در فایل [LICENSE](LICENSE) آمده است.
 
-- **MHDLabs** — [GitHub](https://github.com/MHDLabs) · [Telegram](https://t.me/MHDLabs)
+## مشارکت و ارتباط
 
-English docs: [README-En.md](README-En.md)
+- **مخزن:** [github.com/MHDLabs/TWP-CF](https://github.com/MHDLabs/TWP-CF)
+- **سازنده:** [MHDLabs](https://github.com/MHDLabs)
+- **تلگرام:** [@MHDLabs](https://t.me/MHDLabs)
+
+---
+
+ساخته‌شده با ❤️ در **MHDLabs**
