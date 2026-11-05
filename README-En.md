@@ -238,11 +238,15 @@ npm run dev</code></pre>
 <h2>📜 License</h2>
 
 <p>
-  TWP-CF uses the MHDLabs Custom Reciprocal License. It is not the MIT License or an OSI-approved standard license.
+  TWP-CF is licensed under the <strong>GNU General Public License v3.0 only (GPL-3.0-only)</strong>.
 </p>
 
 <p>
-  You must keep the copyright notice, credit the original repository, and make the source code available when you distribute or host a version of the project. Read <a href="LICENSE">LICENSE</a> for the full terms.
+  Copyright © 2026 MHDLabs (Mahdi).
+</p>
+
+<p>
+  You may use, study, modify, and redistribute this software, including for commercial purposes, subject to the terms of GPL-3.0. When distributing the original or a modified version, you must preserve applicable copyright and license notices and provide the Corresponding Source as required by the license. Merely running the software as a network service, without conveying a copy, does not by itself trigger GPL-3.0 source-distribution obligations. See <a href="LICENSE">LICENSE</a> for the complete license text.
 </p>
 
 <h2>🤝 Contributions and contact</h2>
