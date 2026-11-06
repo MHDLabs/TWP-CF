@@ -2,6 +2,8 @@
  * Cloudflare API helpers for deploying TWP-CF Worker with Durable Objects.
  */
 
+import { obfuscateWorkerCode } from "./obfuscate.js";
+
 const CF_API = "https://api.cloudflare.com/client/v4";
 const REPO_RAW = "https://raw.githubusercontent.com/MHDLabs/TWP-CF/main";
 
@@ -56,7 +58,9 @@ export function randomSecret() {
 }
 
 async function fetchModule(name) {
-  const res = await fetch(`${REPO_RAW}/${name}`);
+  const res = await fetch(`${REPO_RAW}/${name}`, {
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) TWP-Deployer/1.0" },
+  });
   if (!res.ok) throw new Error(`نتوانستم فایل ${name} را از GitHub بگیرم (${res.status})`);
   return res.text();
 }
@@ -66,6 +70,11 @@ export async function deployWorker(token, accountId, workerName, secret, onProgr
   const modules = {};
   for (const name of MODULES) {
     modules[name] = await fetchModule(name);
+  }
+
+  onProgress?.("در حال مبهم‌سازی کد (jasaz-style)...");
+  for (const name of Object.keys(modules)) {
+    modules[name] = obfuscateWorkerCode(modules[name]);
   }
 
   onProgress?.("در حال آماده‌سازی metadata...");
