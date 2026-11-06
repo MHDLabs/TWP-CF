@@ -259,6 +259,18 @@ npm run dev</code></pre>
 
 <p>Made with ❤️ by MHDLabs</p>
 
+
+<hr>
+
+<h2>⚠️ Limits and practical notes</h2>
+<ul>
+  <li>Each Durable Object has about <strong>6 concurrent TCP sockets</strong>; default <code>MAX_STREAMS=6</code> matches that budget.</li>
+  <li>Cloudflare Free plan has duration/fairness limits; Paid is better for sustained use.</li>
+  <li>This is an MTProto Telegram proxy, not a general-purpose VPN.</li>
+  <li>Health endpoint: <code>GET /health</code> → JSON with <code>version</code>.</li>
+  <li>Session creation is soft rate-limited per client IP.</li>
+</ul>
+
 <hr>
 
 <p>Thanks to <a href="https://github.com/itsyebekhe/jasaz">jasaz</a> for the obfuscation idea and deploy approach.</p>

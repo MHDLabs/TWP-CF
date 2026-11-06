@@ -1,6 +1,6 @@
 import { connect } from "cloudflare:sockets";
 import { RelaySession } from "./session.js";
-import { FRAME, encodeFrame, parseFrames, clampInt } from "./protocol.js";
+import { FRAME, VERSION, encodeFrame, parseFrames, clampInt } from "./protocol.js";
 import { bridgePage } from "./bridge.js";
 
 export default {
@@ -23,6 +23,13 @@ async function route(request, env) {
   const expectedHost = canonicalHost(env.PUBLIC_HOSTNAME || url.hostname);
   if (canonicalHost(url.hostname) !== expectedHost) return camouflage();
 
+  if (url.pathname === "/health" && request.method === "GET") {
+    return Response.json(
+      { ok: true, service: "twp-cf", version: env.APP_VERSION || VERSION },
+      { headers: { ...noStore(), "Access-Control-Allow-Origin": "*" } }
+    );
+  }
+
   if (url.pathname === "/" && request.method === "GET") {
     const capability = exactBridgeQuery(url);
     const telegram = exactTelegramQuery(url, expectedHost, env.PROXY_SECRET);
@@ -38,6 +45,10 @@ async function route(request, env) {
 
   if (url.pathname === "/api/v1/session") {
     if (request.headers.has("Cookie")) return camouflage();
+    const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
+    if (request.method === "POST" && !(await allowSession(clientIp))) {
+      return new Response("rate limited", { status: 429, headers: noStore() });
+    }
     if (request.method === "DELETE") {
       const token = bearer(request);
       if (!(await verifySessionToken(env, expectedHost, token))) return camouflage();
@@ -69,6 +80,7 @@ async function route(request, env) {
         "X-Session-Token": sessionToken,
         "X-Carrier-Mode": "websocket",
         "X-Down-Cursor": "0",
+        "X-App-Version": env.APP_VERSION || VERSION,
       },
     });
   }
@@ -85,7 +97,7 @@ async function route(request, env) {
   }
 
   if (url.pathname === "/healthz" && request.method === "GET") {
-    return Response.json({ ok: true, carrier: "websocket", relay: "direct-telegram-dc" }, { headers: noStore() });
+    return Response.json({ ok: true, service: "twp-cf", version: env.APP_VERSION || VERSION, carrier: "websocket", relay: "direct-telegram-dc" }, { headers: noStore() });
   }
 
   return camouflage();
@@ -96,6 +108,26 @@ function camouflage() {
     status: 404,
     headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
   });
+}
+
+
+/** Soft per-IP session create limit via Cache API (best-effort on Free plan). */
+async function allowSession(ip) {
+  try {
+    const key = new Request(`https://twp-cf.rate/${encodeURIComponent(ip)}`);
+    const cache = caches.default;
+    const hit = await cache.match(key);
+    let count = 0;
+    if (hit) count = Number.parseInt(await hit.text(), 10) || 0;
+    if (count >= 30) return false;
+    await cache.put(
+      key,
+      new Response(String(count + 1), { headers: { "Cache-Control": "max-age=60" } })
+    );
+    return true;
+  } catch {
+    return true;
+  }
 }
 
 function exactTelegramQuery(url, host, secret) {
@@ -205,4 +237,4 @@ function base64url(bytes) { let s = ""; for (let i = 0; i < bytes.length; i += 0
 function base64urlDecode(value) { const padded = value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (value.length % 4)) % 4); const raw = atob(padded); return Uint8Array.from(raw, (c) => c.charCodeAt(0)); }
 function constantTimeEqual(a, b) { if (a.length !== b.length) return false; let diff = 0; for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i); return diff === 0; }
 
-export const _test = { FRAME, encodeFrame, parseFrames, isHello, exactBridgeQuery };
+export const _test = { FRAME, VERSION, encodeFrame, parseFrames, isHello, exactBridgeQuery, allowSession };

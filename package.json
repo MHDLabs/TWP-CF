@@ -1,6 +1,6 @@
 {
   "name": "twp-cf",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Telegram Web Proxy on Cloudflare Workers",
   "type": "module",
   "private": true,
@@ -13,13 +13,13 @@
   "cloudflare": {
     "bindings": {
       "PROXY_SECRET": {
-        "description": "🔑 Your private proxy key. Exactly **32 hex characters** (`0-9`, `a-f`). Generate your own with `openssl rand -hex 16` (or any trusted random-hex generator) and keep it secret. ⚠️ If a value is pre-filled, replace it."
+        "description": "\ud83d\udd11 Your private proxy key. Exactly **32 hex characters** (`0-9`, `a-f`). Generate your own with `openssl rand -hex 16` (or any trusted random-hex generator) and keep it secret. \u26a0\ufe0f If a value is pre-filled, replace it."
       },
       "SESSION_TTL_SECONDS": {
-        "description": "Lifetime of a proxy session in seconds (30–600). The default `300` is fine for most users."
+        "description": "Lifetime of a proxy session in seconds (30\u2013600). The default `300` is fine for most users."
       },
       "MAX_STREAMS": {
-        "description": "Maximum concurrent Telegram streams per session (1–128). The default `64` is fine for most users."
+        "description": "Maximum concurrent Telegram streams per session (1\u2013128). The default `64` is fine for most users."
       },
       "DIAGNOSTICS": {
         "description": "Set to `1` to enable verbose logging. Leave at `0` unless you are debugging."
@@ -29,7 +29,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "secret": "wrangler secret put PROXY_SECRET"
+    "secret": "wrangler secret put PROXY_SECRET",
+    "test": "node --test protocol.test.js"
   },
   "devDependencies": {
     "wrangler": "^4.20.0"

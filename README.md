@@ -307,6 +307,18 @@ npm run dev</code></pre>
 
 <p dir="rtl" align="right">ساخته‌شده با ❤️ در MHDLabs</p>
 
+
+<hr>
+
+<h2 dir="rtl" align="right">⚠️ محدودیت‌ها و نکات عملی</h2>
+<ul dir="rtl" align="right">
+  <li>هر Durable Object حدود <strong>۶ اتصال TCP همزمان</strong> دارد؛ مقدار پیش‌فرض <code dir="ltr">MAX_STREAMS=6</code> با این سقف هم‌خوان است.</li>
+  <li>پلن Free کلادفلر برای ترافیک پایدار محدودیت duration و fairness دارد؛ برای استفاده جدی پلن Paid مناسب‌تر است.</li>
+  <li>این پروژه یک پروکسی MTProto برای تلگرام است، نه فیلترشکن همه‌منظوره.</li>
+  <li>Endpoint سلامت: <code dir="ltr">GET /health</code> → JSON با <code dir="ltr">version</code>.</li>
+  <li>ساخت session با نرخ‌محدود نرم per-IP محافظت می‌شود.</li>
+</ul>
+
 <hr>
 
 <p dir="rtl" align="right">تشکر از <a href="https://github.com/itsyebekhe/jasaz" dir="ltr">jasaz</a> بابت ایده مبهم‌سازی و روش دیپلوی.</p>

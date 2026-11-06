@@ -1,3 +1,5 @@
+export const VERSION = "1.1.0";
+
 export const FRAME = Object.freeze({
   OPEN: 0x01,
   DATA: 0x02,
@@ -10,12 +12,23 @@ export const FRAME = Object.freeze({
   BYE: 0x1f,
 });
 
+/** Stable reason codes carried in BYE payload (UTF-8, max 64 bytes). */
+export const REASON = Object.freeze({
+  PROTOCOL: "protocol_error",
+  MAX_STREAMS: "max_streams",
+  CONNECT_FAILED: "telegram_connect_failed",
+  HANDSHAKE: "handshake_failed",
+  RATE_LIMIT: "rate_limited",
+  SHUTDOWN: "shutdown",
+});
+
 export const HEADER_SIZE = 8;
 export const MAX_PAYLOAD = 1024 * 1024;
 export const MAX_BATCH_FRAMES = 4096;
 export const INITIAL_WINDOW = 4 * 1024 * 1024;
 export const DATA_CHUNK = 64 * 1024;
 export const MAX_WS_MESSAGE = 2 * 1024 * 1024;
+export const MAX_REASON_BYTES = 64;
 
 export function encodeFrame(type, streamId, payload = new Uint8Array()) {
   if (streamId < 0 || streamId > 0xffffff || payload.length > MAX_PAYLOAD) throw new Error("invalid frame");
@@ -24,6 +37,11 @@ export function encodeFrame(type, streamId, payload = new Uint8Array()) {
   new DataView(out.buffer).setUint32(4, payload.length);
   out.set(payload, HEADER_SIZE);
   return out;
+}
+
+export function encodeReason(reason) {
+  const text = String(reason || REASON.PROTOCOL).slice(0, MAX_REASON_BYTES);
+  return new TextEncoder().encode(text);
 }
 
 export function parseFrames(input) {
@@ -40,6 +58,8 @@ export function parseFrames(input) {
   return frames;
 }
 
-
 export function u32(value) { const out = new Uint8Array(4); new DataView(out.buffer).setUint32(0, value); return out; }
-export function clampInt(value, min, max, fallback) { const n = Number.parseInt(value, 10); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback; }
+export function clampInt(value, min, max, fallback) {
+  const n = Number.parseInt(value, 10);
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+}

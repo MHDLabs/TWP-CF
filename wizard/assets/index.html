@@ -374,6 +374,17 @@
       color: #fff;
     }
     .token-btn svg { flex-shrink: 0; opacity: 0.9; }
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0 0 0.55rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .check input { width: auto; margin: 0; accent-color: var(--accent); }
     .hint {
       text-align: center;
       font-size: 0.78rem;
@@ -412,6 +423,8 @@
           <label for="name">نام Worker (اختیاری)</label>
           <input id="name" type="text" placeholder="خالی = تصادفی" pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" autocomplete="off">
         </div>
+        <label class="check"><input type="checkbox" id="force"> جایگزینی Worker هم‌نام (force)</label>
+        <label class="check"><input type="checkbox" id="obfuscate" checked> مبهم‌سازی کد (jasaz)</label>
         <button class="btn" type="submit" id="btn">شروع دیپلوی</button>
       </form>
 
@@ -424,8 +437,13 @@
     <section class="glass" id="history-wrap">
       <div class="history-title">
         <span>دیپلوی‌های این مرورگر</span>
-        <button type="button" class="btn ghost sm" id="clear-all">پاک‌سازی</button>
+        <span style="display:flex;gap:0.35rem;flex-wrap:wrap">
+          <button type="button" class="btn ghost sm" id="export-hist">خروجی</button>
+          <button type="button" class="btn ghost sm" id="import-hist">ورودی</button>
+          <button type="button" class="btn ghost sm" id="clear-all">پاک‌سازی</button>
+        </span>
       </div>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
       <div id="history"></div>
     </section>
 
@@ -631,6 +649,8 @@
           body: JSON.stringify({
             token: t,
             name: document.getElementById("name").value.trim(),
+            force: document.getElementById("force").checked,
+            obfuscate: document.getElementById("obfuscate").checked,
           }),
         });
         const reader = res.body.getReader();
@@ -672,7 +692,33 @@
       }
     });
 
+    
+    document.getElementById("export-hist").onclick = () => {
+      const blob = new Blob([JSON.stringify(loadDeploys(), null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "twp-cf-deploys.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+    document.getElementById("import-hist").onclick = () => document.getElementById("import-file").click();
+    document.getElementById("import-file").onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data)) throw new Error("invalid");
+        const cleaned = data.filter((d) => d && d.url && d.workerName).slice(0, 40);
+        saveDeploys(cleaned);
+        renderHistory();
+      } catch {
+        alert("فایل تاریخچه نامعتبر است");
+      }
+      e.target.value = "";
+    };
+
     renderHistory();
+
   </script>
 </body>
 </html>

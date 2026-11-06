@@ -108,8 +108,8 @@ function streamDeploy(request, url) {
           await send({ type: "error", message: "نام Worker نامعتبر است" });
           return;
         }
-        if (await nameTaken(token, account.id, workerName)) {
-          await send({ type: "error", message: `نام «${workerName}» قبلاً استفاده شده` });
+        if (!body.force && await nameTaken(token, account.id, workerName)) {
+          await send({ type: "error", message: `نام «${workerName}» قبلاً استفاده شده — برای جایگزینی force را فعال کنید` });
           return;
         }
       } else {
@@ -121,9 +121,14 @@ function streamDeploy(request, url) {
       const secret = randomSecret();
       await send({ type: "info", message: `نام Worker: ${workerName}` });
 
-      const result = await deployWorker(token, account.id, workerName, secret, async (msg) => {
-        await send({ type: "info", message: msg });
-      });
+      const result = await deployWorker(
+        token,
+        account.id,
+        workerName,
+        secret,
+        async (msg) => { await send({ type: "info", message: msg }); },
+        { obfuscate: body.obfuscate !== false, force: !!body.force }
+      );
 
       await send({
         type: "complete",

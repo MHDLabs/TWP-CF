@@ -65,16 +65,41 @@ async function fetchModule(name) {
   return res.text();
 }
 
-export async function deployWorker(token, accountId, workerName, secret, onProgress) {
+export async function deployWorker(token, accountId, workerName, secret, onProgress, options = {}) {
   onProgress?.("در حال دریافت کد پروژه از GitHub...");
   const modules = {};
   for (const name of MODULES) {
     modules[name] = await fetchModule(name);
   }
 
-  onProgress?.("در حال مبهم‌سازی کد (jasaz-style)...");
-  for (const name of Object.keys(modules)) {
-    modules[name] = obfuscateWorkerCode(modules[name]);
+  // Integrity: reject empty/truncated modules from CDN/GitHub glitches
+  for (const [name, content] of Object.entries(modules)) {
+    if (!content || content.length < 64) {
+      throw new Error(`فایل ${name} ناقص یا خالی است`);
+    }
+    if (name.endsWith(".js") && !content.includes("export")) {
+      throw new Error(`فایل ${name} ساختار ماژول معتبر ندارد`);
+    }
+  }
+
+  const enableObfuscation = options.obfuscate !== false;
+  if (enableObfuscation) {
+    onProgress?.("در حال مبهم‌سازی کد (jasaz-style)...");
+    for (const name of Object.keys(modules)) {
+      modules[name] = obfuscateWorkerCode(modules[name]);
+    }
+  } else {
+    onProgress?.("مبهم‌سازی غیرفعال است");
+  }
+
+  if (options.force) {
+    onProgress?.("در حال حذف Worker قبلی (force)...");
+    try {
+      await fetch(`${CF_API}/accounts/${accountId}/workers/scripts/${workerName}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (_) {}
   }
 
   onProgress?.("در حال آماده‌سازی metadata...");

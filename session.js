@@ -1,5 +1,5 @@
 import { TELEGRAM_DCS, parseProxySecret, acceptClientHandshake, createTelegramHandshake } from "./mtproxy.js";
-import { FRAME, HEADER_SIZE, INITIAL_WINDOW, DATA_CHUNK, MAX_WS_MESSAGE, encodeFrame, parseFrames, clampInt, u32 } from "./protocol.js";
+import { FRAME, HEADER_SIZE, INITIAL_WINDOW, DATA_CHUNK, MAX_WS_MESSAGE, encodeFrame, encodeReason, parseFrames, clampInt, u32, REASON } from "./protocol.js";
 
 // Bounds include frame headers and an allowance for each retained queue item.
 export const LIMITS = Object.freeze({
@@ -29,7 +29,7 @@ export class RelaySession {
     this.ws = null;
     this.streams = new Map();
     this.closedIds = new Set();
-    this.maxStreams = clampInt(env.MAX_STREAMS, 1, 128, 64);
+    this.maxStreams = clampInt(env.MAX_STREAMS, 1, 6, 6); // CF DO ~6 concurrent TCP sockets
     this.diagnostics = String(env.DIAGNOSTICS || "") === "1";
     this.traceId = this.diagnostics ? crypto.randomUUID().slice(0, 8) : null;
     this.messageCount = 0;
@@ -138,7 +138,11 @@ export class RelaySession {
   openStream(frame) {
     const id = frame.streamId;
     if (!id || frame.payload.length || this.streams.has(id) || this.closedIds.has(id)) return this.protocolError("invalid_open");
-    if (this.streams.size >= this.maxStreams) { this.rememberClosed(id); return this.sendFrame(FRAME.CLOSE, id); }
+    if (this.streams.size >= this.maxStreams) {
+      this.rememberClosed(id);
+      this.trace("max_streams", { streamId: id, limit: this.maxStreams });
+      return this.sendFrame(FRAME.CLOSE, id);
+    }
     const stream = { id, socket: null, writer: null, handshake: new Uint8Array(), handshakeBytes: 0,
       receiveWindow: INITIAL_WINDOW, sendCredit: INITIAL_WINDOW, closed: false,
       queue: [], queueHead: 0, pendingBytes: 0, pendingItems: 0, draining: false,
@@ -217,12 +221,30 @@ export class RelaySession {
       this.active(stream);
       const tg = await createTelegramHandshake(client.tag, client.dcId);
       this.active(stream);
-      clearTimeout(stream.handshakeTimer); stream.handshakeTimer = null;
+            clearTimeout(stream.handshakeTimer); stream.handshakeTimer = null;
       const started = this.diagnostics ? Date.now() : 0;
-      const socket = this.connect({ hostname: TELEGRAM_DCS[Math.abs(client.dcId)], port: 443 }, { allowHalfOpen: false });
-      stream.socket = socket; // Track before awaiting: CLOSE must cancel in-flight dials.
-      Promise.resolve(socket.closed).catch(() => {});
-      await waitFor(socket.opened, stream.abort.signal, LIMITS.connectTimeout, "connect timeout");
+      const hostname = TELEGRAM_DCS[Math.abs(client.dcId)];
+      let socket = null;
+      let lastConnectError = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        if (stream.closed || this.closed || stream.abort.signal.aborted) throw new Error("stream closed");
+        try {
+          socket = this.connect({ hostname, port: 443 }, { allowHalfOpen: false });
+          stream.socket = socket; // Track before awaiting: CLOSE must cancel in-flight dials.
+          Promise.resolve(socket.closed).catch(() => {});
+          await waitFor(socket.opened, stream.abort.signal, LIMITS.connectTimeout, "connect timeout");
+          lastConnectError = null;
+          break;
+        } catch (error) {
+          lastConnectError = error;
+          this.trace("telegram_connect_retry", { streamId: stream.id, dcId: client.dcId, attempt, error: safeError(error) });
+          ignoreFailure(() => socket?.close());
+          stream.socket = null;
+          socket = null;
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 150 * attempt));
+        }
+      }
+      if (!socket || lastConnectError) throw lastConnectError || new Error(REASON.CONNECT_FAILED);
       this.active(stream);
       this.trace("telegram_dc_connected", { streamId: stream.id, dcId: client.dcId, connectMs: started ? Date.now() - started : undefined });
       stream.writer = socket.writable.getWriter();
@@ -365,9 +387,9 @@ export class RelaySession {
     catch { this.shutdown("websocket_send_failed"); }
   }
 
-  protocolError(reason = "protocol_error") {
+  protocolError(reason = REASON.PROTOCOL) {
     this.trace("protocol_error", { reason });
-    this.sendFrame(FRAME.BYE, 0);
+    this.sendFrame(FRAME.BYE, 0, encodeReason(reason));
     this.shutdown(reason);
   }
 
