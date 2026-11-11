@@ -322,3 +322,14 @@ npm run dev</code></pre>
 <hr>
 
 <p dir="rtl" align="right">تشکر از <a href="https://github.com/itsyebekhe/jasaz" dir="ltr">jasaz</a> بابت ایده مبهم‌سازی و روش دیپلوی.</p>
+
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=mhdlabs%2Ftwp-cf&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=mhdlabs/twp-cf&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=mhdlabs/twp-cf&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=mhdlabs/twp-cf&type=date&legend=top-left" />
+ </picture>
+</a>
