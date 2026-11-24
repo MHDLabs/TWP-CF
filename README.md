@@ -223,6 +223,7 @@ npm run dev</code></pre>
   <li><code dir="ltr">mtproxy.js</code>، دست‌دهی MTProto و رمزنگاری AES-CTR</li>
   <li><code dir="ltr">protocol.js</code>، تعریف و پردازش فریم‌های پروتکل داخلی</li>
   <li><code dir="ltr">bridge.js</code>، ارتباط Bridge با نشست WebSocket</li>
+  <li><code dir="ltr">decoy.html</code>، صفحهٔ پیش‌فرض برای بازدید عادی از ریشهٔ Worker</li>
   <li><code dir="ltr">wizard/</code>، رابط وب و API راه‌انداز</li>
   <li><code dir="ltr">wrangler.toml</code>، تنظیمات Cloudflare Workers و Durable Objects</li>
 </ul>

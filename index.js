@@ -2,6 +2,7 @@ import { connect } from "cloudflare:sockets";
 import { RelaySession } from "./session.js";
 import { FRAME, VERSION, encodeFrame, parseFrames, clampInt } from "./protocol.js";
 import { bridgePage } from "./bridge.js";
+import decoyHTML from "./decoy.html";
 
 export default {
   async fetch(request, env) {
@@ -34,7 +35,7 @@ async function route(request, env) {
     const capability = exactBridgeQuery(url);
     const telegram = exactTelegramQuery(url, expectedHost, env.PROXY_SECRET);
     if (!capability && !telegram) {
-      return camouflage();
+      return decoyResponse();
     }
     if (capability && !(await capabilityMatches(capability, expectedHost, env.PROXY_SECRET))) {
       return camouflage();
@@ -101,6 +102,17 @@ async function route(request, env) {
   }
 
   return camouflage();
+}
+
+function decoyResponse() {
+  return new Response(decoyHTML, {
+    status: 404,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
 }
 
 function camouflage() {
