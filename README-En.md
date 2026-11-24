@@ -189,7 +189,7 @@ npm run dev</code></pre>
     <tr><td><code>mtproxy.js</code></td><td>MTProto handshake and AES-CTR encryption.</td></tr>
     <tr><td><code>protocol.js</code></td><td>Internal protocol frames and parsing.</td></tr>
     <tr><td><code>bridge.js</code></td><td>Bridge between the client and WebSocket session.</td></tr>
-    <tr><td><code>decoy.html</code></td><td>Default page shown on ordinary visits to the Worker root.</td></tr>
+    <tr><td><code>index.js</code></td><td>Includes the embedded default decoy page for ordinary visits to the Worker root.</td></tr>
     <tr><td><code>wizard/</code></td><td>Web deployer and its API.</td></tr>
     <tr><td><code>wrangler.toml</code></td><td>Cloudflare Workers and Durable Objects configuration.</td></tr>
   </tbody>
